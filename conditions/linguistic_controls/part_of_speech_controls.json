@@ -1,0 +1,290 @@
+{
+  "schema_version": "0.4",
+  "catalogue_id": "finnish_part_of_speech_controls",
+  "catalogue_version": 1,
+  "group": "part_of_speech",
+  "basis": {
+    "title": "Characterizing Finnish children’s books by target age — Complementing key feature analysis with machine learning",
+    "doi": "10.1016/j.acorp.2026.100240",
+    "inventory_basis": "Published paper"
+  },
+  "implementation_status": "proposed_definitions_and_prompt_text_only",
+  "controls": {
+    "NOUN": {
+      "label_fi": "substantiivi",
+      "prompt_description_fi": "substantiiveja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää substantiiveja (NOUN).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "NOUN",
+        "count_unit": "token"
+      }
+    },
+    "VERB": {
+      "label_fi": "verbi",
+      "prompt_description_fi": "verbejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää verbejä (VERB).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "VERB",
+        "count_unit": "token"
+      }
+    },
+    "PRON": {
+      "label_fi": "pronomini",
+      "prompt_description_fi": "pronomineja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää pronomineja (PRON).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "PRON",
+        "count_unit": "token"
+      }
+    },
+    "ADV": {
+      "label_fi": "adverbi",
+      "prompt_description_fi": "adverbeja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää adverbeja (ADV).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "ADV",
+        "count_unit": "token"
+      }
+    },
+    "AUX": {
+      "label_fi": "apuverbi",
+      "prompt_description_fi": "apuverbejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää apuverbejä (AUX).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "AUX",
+        "count_unit": "token"
+      }
+    },
+    "ADJ": {
+      "label_fi": "adjektiivi",
+      "prompt_description_fi": "adjektiiveja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää adjektiiveja (ADJ).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "ADJ",
+        "count_unit": "token"
+      }
+    },
+    "PROPN": {
+      "label_fi": "erisnimi",
+      "prompt_description_fi": "erisnimiä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää erisnimiä (PROPN).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "PROPN",
+        "count_unit": "token"
+      }
+    },
+    "CCONJ": {
+      "label_fi": "rinnastuskonjunktio",
+      "prompt_description_fi": "rinnastuskonjunktioita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää rinnastuskonjunktioita (CCONJ).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "CCONJ",
+        "count_unit": "token"
+      }
+    },
+    "SCONJ": {
+      "label_fi": "alistuskonjunktio",
+      "prompt_description_fi": "alistuskonjunktioita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää alistuskonjunktioita (SCONJ).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "SCONJ",
+        "count_unit": "token"
+      }
+    },
+    "ADP": {
+      "label_fi": "adpositio",
+      "prompt_description_fi": "adpositioita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää adpositioita (ADP).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "ADP",
+        "count_unit": "token"
+      }
+    },
+    "NUM": {
+      "label_fi": "lukusana",
+      "prompt_description_fi": "lukusanoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää lukusanoja (NUM).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "NUM",
+        "count_unit": "token"
+      }
+    },
+    "INTJ": {
+      "label_fi": "interjektio",
+      "prompt_description_fi": "interjektioita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää interjektioita (INTJ).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "INTJ",
+        "count_unit": "token"
+      }
+    },
+    "PUNCT": {
+      "label_fi": "välimerkki",
+      "prompt_description_fi": "välimerkkejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää välimerkkejä (PUNCT).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_part_of_speech",
+        "upos": "PUNCT",
+        "count_unit": "token"
+      }
+    },
+    "NOUN_headed_phrase": {
+      "label_fi": "substantiivipäinen lauseke",
+      "prompt_description_fi": "lauseita, joiden syntaksipuun pääsana on substantiivi",
+      "presence_instruction_fi": "Tekstissä tulee käyttää lauseita, joiden syntaksipuun pääsana on substantiivi (NOUN_headed_phrase).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_root_part_of_speech",
+        "relation": "root",
+        "upos": "NOUN",
+        "count_unit": "root_token"
+      },
+      "note_fi": "Paperin operationalisointi: lauseen syntaksipuun pääsanan sanaluokka. Ei yleinen kaikkien lausekkeiden tunnistin."
+    },
+    "VERB_headed_phrase": {
+      "label_fi": "verbipäinen lauseke",
+      "prompt_description_fi": "lauseita, joiden syntaksipuun pääsana on verbi",
+      "presence_instruction_fi": "Tekstissä tulee käyttää lauseita, joiden syntaksipuun pääsana on verbi (VERB_headed_phrase).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_root_part_of_speech",
+        "relation": "root",
+        "upos": "VERB",
+        "count_unit": "root_token"
+      },
+      "note_fi": "Paperin operationalisointi: lauseen syntaksipuun pääsanan sanaluokka. Ei yleinen kaikkien lausekkeiden tunnistin."
+    },
+    "ADJ_headed_phrase": {
+      "label_fi": "adjektiivipäinen lauseke",
+      "prompt_description_fi": "lauseita, joiden syntaksipuun pääsana on adjektiivi",
+      "presence_instruction_fi": "Tekstissä tulee käyttää lauseita, joiden syntaksipuun pääsana on adjektiivi (ADJ_headed_phrase).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_root_part_of_speech",
+        "relation": "root",
+        "upos": "ADJ",
+        "count_unit": "root_token"
+      },
+      "note_fi": "Paperin operationalisointi: lauseen syntaksipuun pääsanan sanaluokka. Ei yleinen kaikkien lausekkeiden tunnistin."
+    },
+    "function_content_ratio": {
+      "label_fi": "funktiosanojen ja sisältösanojen suhde",
+      "prompt_description_fi": "funktiosanojen ja sisältösanojen suhde",
+      "presence_instruction_fi": null,
+      "range_instruction_template_fi": "Funktiosanojen määrän suhteen sisältösanojen määrään tulee olla välillä {min}–{max} (funktiosanaa sisältösanaa kohden).",
+      "target_modes": [
+        "range"
+      ],
+      "unit": "funktiosanaa sisältösanaa kohden",
+      "definition": {
+        "kind": "part_of_speech_ratio",
+        "numerator_upos": [
+          "PRON",
+          "ADV",
+          "AUX",
+          "CCONJ",
+          "SCONJ",
+          "ADP",
+          "PUNCT"
+        ],
+        "denominator_upos": [
+          "NOUN",
+          "VERB",
+          "ADJ",
+          "PROPN",
+          "NUM"
+        ],
+        "zero_denominator": "undefined"
+      }
+    }
+  }
+}

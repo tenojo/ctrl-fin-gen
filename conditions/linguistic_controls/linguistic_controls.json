@@ -1,0 +1,1310 @@
+{
+  "schema_version": "0.4",
+  "catalogue_id": "finnish_morpholexical_controls",
+  "catalogue_version": 3,
+  "group": "morpho_lexical",
+  "basis": {
+    "title": "Characterizing Finnish children’s books by target age — Complementing key feature analysis with machine learning",
+    "doi": "10.1016/j.acorp.2026.100240",
+    "inventory_basis": "Published paper"
+  },
+  "implementation_status": "proposed_definitions_and_prompt_text_only",
+  "controls": {
+    "Case=Nom": {
+      "label_fi": "nominatiivi",
+      "prompt_description_fi": "nominatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää nominatiivia (Case=Nom).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Nom"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Gen": {
+      "label_fi": "genetiivi",
+      "prompt_description_fi": "genetiiviä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää genetiiviä (Case=Gen).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Gen"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Par": {
+      "label_fi": "partitiivi",
+      "prompt_description_fi": "partitiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää partitiivia (Case=Par).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Par"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Ill": {
+      "label_fi": "illatiivi",
+      "prompt_description_fi": "illatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää illatiivia (Case=Ill).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Ill"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Ine": {
+      "label_fi": "inessiivi",
+      "prompt_description_fi": "inessiiviä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää inessiiviä (Case=Ine).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Ine"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Ela": {
+      "label_fi": "elatiivi",
+      "prompt_description_fi": "elatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää elatiivia (Case=Ela).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Ela"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Ade": {
+      "label_fi": "adessiivi",
+      "prompt_description_fi": "adessiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää adessiivia (Case=Ade).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Ade"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=All": {
+      "label_fi": "allatiivi",
+      "prompt_description_fi": "allatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää allatiivia (Case=All).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "All"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Ess": {
+      "label_fi": "essiivi",
+      "prompt_description_fi": "essiiviä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää essiiviä (Case=Ess).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Ess"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Abl": {
+      "label_fi": "ablatiivi",
+      "prompt_description_fi": "ablatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää ablatiivia (Case=Abl).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Abl"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Tra": {
+      "label_fi": "translatiivi",
+      "prompt_description_fi": "translatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää translatiivia (Case=Tra).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Tra"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Acc": {
+      "label_fi": "akkusatiivi",
+      "prompt_description_fi": "akkusatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää akkusatiivia (Case=Acc).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Acc"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Ins": {
+      "label_fi": "instruktiivi",
+      "prompt_description_fi": "instruktiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää instruktiivia (Case=Ins).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Ins"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Abe": {
+      "label_fi": "abessiivi",
+      "prompt_description_fi": "abessiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää abessiivia (Case=Abe).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Abe"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Case=Com": {
+      "label_fi": "komitatiivi",
+      "prompt_description_fi": "komitatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää komitatiivia (Case=Com).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Case": "Com"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "VerbForm=Fin": {
+      "label_fi": "finiittinen verbimuoto",
+      "prompt_description_fi": "finiittisiä verbimuotoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää finiittisiä verbimuotoja (VerbForm=Fin).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "VerbForm": "Fin"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "VerbForm=Inf": {
+      "label_fi": "infinitiivi",
+      "prompt_description_fi": "infinitiivejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää infinitiivejä (VerbForm=Inf).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "VerbForm": "Inf"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "VerbForm=Part": {
+      "label_fi": "partisiippi",
+      "prompt_description_fi": "partisiippeja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää partisiippeja (VerbForm=Part).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "VerbForm": "Part"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Tense=Pres": {
+      "label_fi": "preesens",
+      "prompt_description_fi": "preesensiä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää preesensiä (Tense=Pres).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Tense": "Pres"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Tense=Past": {
+      "label_fi": "verbin mennyt aikamuoto",
+      "prompt_description_fi": "verbin mennyttä aikamuotoa",
+      "presence_instruction_fi": "Tekstissä tulee käyttää verbin mennyttä aikamuotoa (Tense=Past).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Tense": "Past"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Voice=Act": {
+      "label_fi": "aktiivimuotoinen verbi",
+      "prompt_description_fi": "aktiivimuotoisia verbejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää aktiivimuotoisia verbejä (Voice=Act).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Voice": "Act"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Voice=Pass": {
+      "label_fi": "passiivimuotoinen verbi",
+      "prompt_description_fi": "passiivimuotoisia verbejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää passiivimuotoisia verbejä (Voice=Pass).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Voice": "Pass"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Mood=Ind": {
+      "label_fi": "indikatiivi",
+      "prompt_description_fi": "indikatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää indikatiivia (Mood=Ind).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Mood": "Ind"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Mood=Cnd": {
+      "label_fi": "konditionaali",
+      "prompt_description_fi": "konditionaalia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää konditionaalia (Mood=Cnd).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Mood": "Cnd"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Mood=Imp": {
+      "label_fi": "imperatiivi",
+      "prompt_description_fi": "imperatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää imperatiivia (Mood=Imp).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Mood": "Imp"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Person=0": {
+      "label_fi": "nollapersoona",
+      "prompt_description_fi": "nollapersoonaa",
+      "presence_instruction_fi": "Tekstissä tulee käyttää nollapersoonaa (Person=0).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Person": "0"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Person=1": {
+      "label_fi": "ensimmäinen persoona",
+      "prompt_description_fi": "ensimmäistä persoonaa",
+      "presence_instruction_fi": "Tekstissä tulee käyttää ensimmäistä persoonaa (Person=1).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Person": "1"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Person=2": {
+      "label_fi": "toinen persoona",
+      "prompt_description_fi": "toista persoonaa",
+      "presence_instruction_fi": "Tekstissä tulee käyttää toista persoonaa (Person=2).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Person": "2"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Person=3": {
+      "label_fi": "kolmas persoona",
+      "prompt_description_fi": "kolmatta persoonaa",
+      "presence_instruction_fi": "Tekstissä tulee käyttää kolmatta persoonaa (Person=3).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Person": "3"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Number=Sing": {
+      "label_fi": "yksikkömuoto",
+      "prompt_description_fi": "yksikkömuotoisia sanoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää yksikkömuotoisia sanoja (Number=Sing).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Number": "Sing"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Number=Plur": {
+      "label_fi": "monikkomuoto",
+      "prompt_description_fi": "monikkomuotoisia sanoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää monikkomuotoisia sanoja (Number=Plur).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Number": "Plur"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Connegative=Yes": {
+      "label_fi": "pääverbin kieltomuoto",
+      "prompt_description_fi": "pääverbin kieltomuotoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää pääverbin kieltomuotoja (Connegative=Yes).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Connegative": "Yes"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Degree=Pos": {
+      "label_fi": "positiivi eli perusaste",
+      "prompt_description_fi": "positiivia eli perusastetta",
+      "presence_instruction_fi": "Tekstissä tulee käyttää positiivia eli perusastetta (Degree=Pos).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Degree": "Pos"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Degree=Cmp": {
+      "label_fi": "komparatiivi",
+      "prompt_description_fi": "komparatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää komparatiivia (Degree=Cmp).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Degree": "Cmp"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Degree=Sup": {
+      "label_fi": "superlatiivi",
+      "prompt_description_fi": "superlatiivia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää superlatiivia (Degree=Sup).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Degree": "Sup"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Style=Arch": {
+      "label_fi": "vanhahtava sanamuoto",
+      "prompt_description_fi": "vanhahtavia sanamuotoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää vanhahtavia sanamuotoja (Style=Arch).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Style": "Arch"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Style=Coll": {
+      "label_fi": "puhekielinen sanamuoto",
+      "prompt_description_fi": "puhekielisiä sanamuotoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää puhekielisiä sanamuotoja (Style=Coll).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Style": "Coll"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Reflex=Yes": {
+      "label_fi": "refleksiivipronomini",
+      "prompt_description_fi": "refleksiivipronomineja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää refleksiivipronomineja (Reflex=Yes).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Reflex": "Yes"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PronType=Dem": {
+      "label_fi": "demonstratiivipronomini",
+      "prompt_description_fi": "demonstratiivipronomineja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää demonstratiivipronomineja (PronType=Dem).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PronType": "Dem"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PronType=Ind": {
+      "label_fi": "indefiniittipronomini",
+      "prompt_description_fi": "indefiniittipronomineja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää indefiniittipronomineja (PronType=Ind).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PronType": "Ind"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PronType=Int": {
+      "label_fi": "interrogatiivipronomini",
+      "prompt_description_fi": "interrogatiivipronomineja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää interrogatiivipronomineja (PronType=Int).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PronType": "Int"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PronType=Prs": {
+      "label_fi": "persoonapronomini",
+      "prompt_description_fi": "persoonapronomineja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää persoonapronomineja (PronType=Prs).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PronType": "Prs"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PronType=Rcp": {
+      "label_fi": "resiprookkipronomini",
+      "prompt_description_fi": "resiprookkipronomineja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää resiprookkipronomineja (PronType=Rcp).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PronType": "Rcp"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PronType=Rel": {
+      "label_fi": "relatiivipronomini",
+      "prompt_description_fi": "relatiivipronomineja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää relatiivipronomineja (PronType=Rel).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PronType": "Rel"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Polarity=Neg": {
+      "label_fi": "kieltoverbi",
+      "prompt_description_fi": "kieltoverbiä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää kieltoverbiä (Polarity=Neg).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Polarity": "Neg"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Person[psor]=1": {
+      "label_fi": "ensimmäisen persoonan omistusliite",
+      "prompt_description_fi": "ensimmäisen persoonan omistusliitteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää ensimmäisen persoonan omistusliitteitä (Person[psor]=1).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Person[psor]": "1"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Person[psor]=2": {
+      "label_fi": "toisen persoonan omistusliite",
+      "prompt_description_fi": "toisen persoonan omistusliitteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää toisen persoonan omistusliitteitä (Person[psor]=2).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Person[psor]": "2"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Person[psor]=3": {
+      "label_fi": "kolmannen persoonan omistusliite",
+      "prompt_description_fi": "kolmannen persoonan omistusliitteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää kolmannen persoonan omistusliitteitä (Person[psor]=3).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Person[psor]": "3"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PartForm=Agt": {
+      "label_fi": "agenttipartisiippi",
+      "prompt_description_fi": "agenttipartisiippeja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää agenttipartisiippeja (PartForm=Agt).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PartForm": "Agt"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PartForm=Neg": {
+      "label_fi": "kieltopartisiippi",
+      "prompt_description_fi": "kieltopartisiippeja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää kieltopartisiippeja (PartForm=Neg).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PartForm": "Neg"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PartForm=Past": {
+      "label_fi": "menneen ajan partisiippi",
+      "prompt_description_fi": "menneen ajan partisiippeja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää menneen ajan partisiippeja (PartForm=Past).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PartForm": "Past"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "PartForm=Pres": {
+      "label_fi": "preesensin partisiippi",
+      "prompt_description_fi": "preesensin partisiippeja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää preesensin partisiippeja (PartForm=Pres).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "PartForm": "Pres"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "NumType=Card": {
+      "label_fi": "perusluku",
+      "prompt_description_fi": "peruslukuja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää peruslukuja (NumType=Card).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "NumType": "Card"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "NumType=Ord": {
+      "label_fi": "järjestysluku",
+      "prompt_description_fi": "järjestyslukuja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää järjestyslukuja (NumType=Ord).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "NumType": "Ord"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Number[psor]=Plur": {
+      "label_fi": "monikolliseen omistajaan viittaava omistusliite",
+      "prompt_description_fi": "monikolliseen omistajaan viittaavia omistusliitteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää monikolliseen omistajaan viittaavia omistusliitteitä (Number[psor]=Plur).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Number[psor]": "Plur"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Number[psor]=Sing": {
+      "label_fi": "yksikölliseen omistajaan viittaava omistusliite",
+      "prompt_description_fi": "yksikölliseen omistajaan viittaavia omistusliitteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää yksikölliseen omistajaan viittaavia omistusliitteitä (Number[psor]=Sing).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Number[psor]": "Sing"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "InfForm=1": {
+      "label_fi": "A-infinitiivi",
+      "prompt_description_fi": "A-infinitiivejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää A-infinitiivejä (InfForm=1).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "InfForm": "1"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "InfForm=2": {
+      "label_fi": "E-infinitiivi",
+      "prompt_description_fi": "E-infinitiivejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää E-infinitiivejä (InfForm=2).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "InfForm": "2"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "InfForm=3": {
+      "label_fi": "MA-infinitiivi",
+      "prompt_description_fi": "MA-infinitiivejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää MA-infinitiivejä (InfForm=3).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "InfForm": "3"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Foreign=Yes": {
+      "label_fi": "vieraskielinen sana tai ilmaus",
+      "prompt_description_fi": "vieraskielisiä sanoja tai ilmauksia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää vieraskielisiä sanoja tai ilmauksia (Foreign=Yes).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Foreign": "Yes"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Derivation=Inen": {
+      "label_fi": "-inen-johdos",
+      "prompt_description_fi": "-inen-johtimella muodostettuja sanoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää -inen-johtimella muodostettuja sanoja (Derivation=Inen).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Derivation": "Inen"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Derivation=Ja": {
+      "label_fi": "-ja- tai -jä-johdos",
+      "prompt_description_fi": "-ja- tai -jä-johtimella muodostettuja tekijännimiä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää -ja- tai -jä-johtimella muodostettuja tekijännimiä (Derivation=Ja).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Derivation": "Ja"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Derivation=Lainen": {
+      "label_fi": "-lainen- tai -läinen-johdos",
+      "prompt_description_fi": "-lainen- tai -läinen-johtimella muodostettuja sanoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää -lainen- tai -läinen-johtimella muodostettuja sanoja (Derivation=Lainen).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Derivation": "Lainen"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Derivation=Llinen": {
+      "label_fi": "-llinen-johdos",
+      "prompt_description_fi": "-llinen-johtimella muodostettuja sanoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää -llinen-johtimella muodostettuja sanoja (Derivation=Llinen).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Derivation": "Llinen"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Derivation=Tar": {
+      "label_fi": "-tar- tai -tär-johdos",
+      "prompt_description_fi": "-tar- tai -tär-johtimella muodostettuja substantiiveja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää -tar- tai -tär-johtimella muodostettuja substantiiveja (Derivation=Tar).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Derivation": "Tar"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Derivation=Ton": {
+      "label_fi": "-ton- tai -tön-johdos",
+      "prompt_description_fi": "-ton- tai -tön-johtimella muodostettuja sanoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää -ton- tai -tön-johtimella muodostettuja sanoja (Derivation=Ton).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Derivation": "Ton"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Derivation=Ttain": {
+      "label_fi": "-ttain- tai -ttäin-johdos",
+      "prompt_description_fi": "-ttain- tai -ttäin-johtimella muodostettuja adverbeja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää -ttain- tai -ttäin-johtimella muodostettuja adverbeja (Derivation=Ttain).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Derivation": "Ttain"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Derivation=U": {
+      "label_fi": "-u- tai -y-johdos",
+      "prompt_description_fi": "-u- tai -y-johtimella muodostettuja substantiiveja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää -u- tai -y-johtimella muodostettuja substantiiveja (Derivation=U).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Derivation": "U"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Derivation=Vs": {
+      "label_fi": "ominaisuudennimijohdos",
+      "prompt_description_fi": "ominaisuudennimijohdoksia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää ominaisuudennimijohdoksia (Derivation=Vs).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Derivation": "Vs"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "AdpType=Post": {
+      "label_fi": "postpositio",
+      "prompt_description_fi": "postpositioita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää postpositioita (AdpType=Post).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "AdpType": "Post"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "AdpType=Prep": {
+      "label_fi": "prepositio",
+      "prompt_description_fi": "prepositioita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää prepositioita (AdpType=Prep).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "AdpType": "Prep"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    },
+    "Abbr=Yes": {
+      "label_fi": "lyhenne",
+      "prompt_description_fi": "lyhenteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää lyhenteitä (Abbr=Yes).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_token_features",
+        "features": {
+          "Abbr": "Yes"
+        },
+        "value_match": "contains",
+        "count_unit": "token"
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.4",
+  "catalogue_id": "finnish_vocabulary_controls",
+  "catalogue_version": 1,
+  "implementation_status": "proposed_check_definitions_and_prompt_text_only",
+  "controls": {
+    "required_lemmas": {
+      "label_fi": "käytettävät sanat",
+      "instruction_template_fi": "Tekstissä tulee käyttää seuraavia sanoja ainakin kerran: {lemmas}. Huomaa, että annetut sanat ovat perusmuodossa ja niitä tulee taivuttaa tekstissä oikein.",
+      "definition": {
+        "kind": "required_lemma_presence",
+        "required_policies": [
+          "lemmatization_policy",
+          "normalization_policy"
+        ]
+      }
+    }
+  }
+}

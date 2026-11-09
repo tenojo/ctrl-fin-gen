@@ -1,0 +1,13 @@
+{user_prompt_prefix}
+
+{length_constraints}
+
+{vocabulary_constraints}
+
+{morphosyntactic_constraints}
+
+{audience_constraint}
+
+{style_or_thematic_constraint}
+
+{user_prompt_reminder}

@@ -1,0 +1,835 @@
+{
+  "schema_version": "0.4",
+  "catalogue_id": "finnish_syntax_tree_controls",
+  "catalogue_version": 1,
+  "group": "syntax_tree",
+  "basis": {
+    "title": "Characterizing Finnish children’s books by target age — Complementing key feature analysis with machine learning",
+    "doi": "10.1016/j.acorp.2026.100240",
+    "inventory_basis": "Published paper"
+  },
+  "implementation_status": "proposed_definitions_and_prompt_text_only",
+  "controls": {
+    "root": {
+      "label_fi": "lauseen pääsana",
+      "prompt_description_fi": "lauseita, joissa on syntaksipuun pääsana",
+      "presence_instruction_fi": "Tekstissä tulee käyttää lauseita, joissa on syntaksipuun pääsana (root).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "root",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general",
+      "note_fi": "Pelkkä läsnäolo on yleensä itsestään selvä; piirre säilytetään kattavuuden vuoksi."
+    },
+    "nsubj": {
+      "label_fi": "nominaalinen subjekti",
+      "prompt_description_fi": "nominaalisia subjekteja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää nominaalisia subjekteja (nsubj).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "nsubj",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "advmod": {
+      "label_fi": "adverbiaalinen määrite",
+      "prompt_description_fi": "adverbiaalisia määritteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää adverbiaalisia määritteitä (advmod).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "advmod",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "obl": {
+      "label_fi": "nominaalinen adverbiaali",
+      "prompt_description_fi": "nominaalisia adverbiaaleja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää nominaalisia adverbiaaleja (obl).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "obl",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "obj": {
+      "label_fi": "objekti",
+      "prompt_description_fi": "objekteja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää objekteja (obj).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "obj",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "conj": {
+      "label_fi": "rinnastetut osat",
+      "prompt_description_fi": "rinnasteisia sanoja tai lauseita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää rinnasteisia sanoja tai lauseita (conj).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "conj",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "aux": {
+      "label_fi": "apuverbi",
+      "prompt_description_fi": "apuverbejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää apuverbejä (aux).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "aux",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "cc": {
+      "label_fi": "rinnastuskonjunktio",
+      "prompt_description_fi": "rinnastuskonjunktioita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää rinnastuskonjunktioita (cc).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "cc",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "amod": {
+      "label_fi": "substantiivin adjektiivimäärite",
+      "prompt_description_fi": "substantiivien adjektiivimääritteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää substantiivien adjektiivimääritteitä (amod).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "amod",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "nmod:poss": {
+      "label_fi": "genetiivimäärite",
+      "prompt_description_fi": "genetiivimääritteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää genetiivimääritteitä (nmod:poss).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "nmod:poss",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "mark": {
+      "label_fi": "alisteisen lauseen konjunktio",
+      "prompt_description_fi": "alisteisia lauseita aloittavia konjunktioita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää alisteisia lauseita aloittavia konjunktioita (mark).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "mark",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "cop": {
+      "label_fi": "kopularakenne",
+      "prompt_description_fi": "kopularakenteita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää kopularakenteita (cop).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "cop",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "nsubj:cop": {
+      "label_fi": "kopulalauseen nominaalinen subjekti",
+      "prompt_description_fi": "kopulalauseita, joissa on nominaalinen subjekti",
+      "presence_instruction_fi": "Tekstissä tulee käyttää kopulalauseita, joissa on nominaalinen subjekti (nsubj:cop).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "nsubj:cop",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "advcl": {
+      "label_fi": "adverbiaalinen sivulause tai lauseenvastike",
+      "prompt_description_fi": "adverbiaalisia sivulauseita tai lauseenvastikkeita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää adverbiaalisia sivulauseita tai lauseenvastikkeita (advcl).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "advcl",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "xcomp": {
+      "label_fi": "avoin lausetäydennys",
+      "prompt_description_fi": "avoimia lausetäydennyksiä, joiden subjekti ilmenee hallitsevasta rakenteesta",
+      "presence_instruction_fi": "Tekstissä tulee käyttää avoimia lausetäydennyksiä, joiden subjekti ilmenee hallitsevasta rakenteesta (xcomp).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "xcomp",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "case": {
+      "label_fi": "adposition sisältävä rakenne",
+      "prompt_description_fi": "pre- tai postpositiorakenteita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää pre- tai postpositiorakenteita (case).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "case",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "det": {
+      "label_fi": "determinoiva määrite",
+      "prompt_description_fi": "determinoivia määritteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää determinoivia määritteitä (det).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "det",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "ccomp": {
+      "label_fi": "lausemuotoinen täydennys",
+      "prompt_description_fi": "lausemuotoisia täydennyksiä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää lausemuotoisia täydennyksiä (ccomp).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "ccomp",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "nmod": {
+      "label_fi": "nominaalinen määrite",
+      "prompt_description_fi": "nominaalisia määritteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää nominaalisia määritteitä (nmod).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "nmod",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "parataxis": {
+      "label_fi": "rinnastus ilman konjunktiota tai suora puhe",
+      "prompt_description_fi": "ilman rinnastuskonjunktiota rinnastettuja lauseita tai suoraa puhetta",
+      "presence_instruction_fi": "Tekstissä tulee käyttää ilman rinnastuskonjunktiota rinnastettuja lauseita tai suoraa puhetta (parataxis).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "parataxis",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "acl:relcl": {
+      "label_fi": "relatiivilause",
+      "prompt_description_fi": "relatiivilauseita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää relatiivilauseita (acl:relcl).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "acl:relcl",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "acl": {
+      "label_fi": "substantiivin lausemainen määrite",
+      "prompt_description_fi": "substantiivien lausemaisia määritteitä, kuten partisiippirakenteita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää substantiivien lausemaisia määritteitä, kuten partisiippirakenteita (acl).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "acl",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "xcomp:ds": {
+      "label_fi": "erisubjektinen avoin lausetäydennys",
+      "prompt_description_fi": "avoimia lausetäydennyksiä, joilla on hallitsevasta rakenteesta erillinen subjekti",
+      "presence_instruction_fi": "Tekstissä tulee käyttää avoimia lausetäydennyksiä, joilla on hallitsevasta rakenteesta erillinen subjekti (xcomp:ds).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "xcomp:ds",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "discourse": {
+      "label_fi": "huudahdus tai muu irrallinen ilmaus",
+      "prompt_description_fi": "huudahduksia tai muita lauseesta irrallisia ilmauksia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää huudahduksia tai muita lauseesta irrallisia ilmauksia (discourse).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "discourse",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "nummod": {
+      "label_fi": "substantiivin lukusanamäärite",
+      "prompt_description_fi": "substantiivien lukusanamääritteitä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää substantiivien lukusanamääritteitä (nummod).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "nummod",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "fixed": {
+      "label_fi": "kiinteä monisanainen ilmaus",
+      "prompt_description_fi": "kiinteitä monisanaisia ilmauksia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää kiinteitä monisanaisia ilmauksia (fixed).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "fixed",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "cop:own": {
+      "label_fi": "omistuslause",
+      "prompt_description_fi": "omistuslauseita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää omistuslauseita (cop:own).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "cop:own",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "appos": {
+      "label_fi": "appositio",
+      "prompt_description_fi": "appositioita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää appositioita (appos).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "appos",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "flat:name": {
+      "label_fi": "monisanainen nimi",
+      "prompt_description_fi": "monisanaisia nimiä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää monisanaisia nimiä (flat:name).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "flat:name",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "compound:nn": {
+      "label_fi": "erilleen kirjoitettu substantiiviyhdyssana",
+      "prompt_description_fi": "substantiivien muodostamia yhdyssanarakenteita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää substantiivien muodostamia yhdyssanarakenteita (compound:nn).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "compound:nn",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal",
+      "note_fi": "Tarkoittaa annotointikäytännössä erillisten tokenien välistä yhdyssanasuhdetta, ei kaikkia yhteen kirjoitettuja suomen yhdyssanoja."
+    },
+    "aux:pass": {
+      "label_fi": "passiivirakenteen apuverbi",
+      "prompt_description_fi": "passiivirakenteiden apuverbejä",
+      "presence_instruction_fi": "Tekstissä tulee käyttää passiivirakenteiden apuverbejä (aux:pass).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "aux:pass",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "vocative": {
+      "label_fi": "puhutteluilmaus",
+      "prompt_description_fi": "puhutteluilmauksia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää puhutteluilmauksia (vocative).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "vocative",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "nmod:gobj": {
+      "label_fi": "genetiiviobjekti",
+      "prompt_description_fi": "genetiiviobjekteja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää genetiiviobjekteja (nmod:gobj).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "nmod:gobj",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "nmod:gsubj": {
+      "label_fi": "genetiivisubjekti",
+      "prompt_description_fi": "genetiivisubjekteja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää genetiivisubjekteja (nmod:gsubj).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "nmod:gsubj",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "compound:prt": {
+      "label_fi": "verbipartikkeli",
+      "prompt_description_fi": "verbipartikkeleita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää verbipartikkeleita (compound:prt).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "compound:prt",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "csubj:cop": {
+      "label_fi": "kopulalauseen lausemuotoinen subjekti",
+      "prompt_description_fi": "kopulalauseita, joiden subjektina on lause",
+      "presence_instruction_fi": "Tekstissä tulee käyttää kopulalauseita, joiden subjektina on lause (csubj:cop).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "csubj:cop",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "flat:foreign": {
+      "label_fi": "monisanainen vieraskielinen lainaus",
+      "prompt_description_fi": "monisanaisia vieraskielisiä lainauksia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää monisanaisia vieraskielisiä lainauksia (flat:foreign).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "flat:foreign",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "orphan": {
+      "label_fi": "elliptinen rinnastusrakenne",
+      "prompt_description_fi": "rinnastusrakenteita, joissa yhteinen verbi on jätetty toistamatta",
+      "presence_instruction_fi": "Tekstissä tulee käyttää rinnastusrakenteita, joissa yhteinen verbi on jätetty toistamatta (orphan).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "orphan",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "cc:preconj": {
+      "label_fi": "rinnastuksen etujäsen",
+      "prompt_description_fi": "rinnastuksia, joissa on etujäsen, kuten sekä–että-rakenteita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää rinnastuksia, joissa on etujäsen, kuten sekä–että-rakenteita (cc:preconj).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "cc:preconj",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "csubj": {
+      "label_fi": "lausemuotoinen subjekti",
+      "prompt_description_fi": "lausemuotoisia subjekteja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää lausemuotoisia subjekteja (csubj).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "csubj",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "clausal"
+    },
+    "compound": {
+      "label_fi": "yhdyssanarakenne",
+      "prompt_description_fi": "yhdyssanarakenteita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää yhdyssanarakenteita (compound).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "compound",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "phrasal"
+    },
+    "flat": {
+      "label_fi": "monisanainen nimimäinen ilmaus",
+      "prompt_description_fi": "monisanaisia nimimäisiä ilmauksia",
+      "presence_instruction_fi": "Tekstissä tulee käyttää monisanaisia nimimäisiä ilmauksia (flat).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "flat",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general"
+    },
+    "goeswith": {
+      "label_fi": "virheellisesti erilleen kirjoitettu yhdyssana",
+      "prompt_description_fi": "virheellisesti erilleen kirjoitettuja yhdyssanoja",
+      "presence_instruction_fi": "Tekstissä tulee käyttää virheellisesti erilleen kirjoitettuja yhdyssanoja (goeswith).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "ud_dependency_relation",
+        "relation": "goeswith",
+        "match": "exact",
+        "count_unit": "dependent_token"
+      },
+      "dimension": "general",
+      "note_fi": "Piirre kuvaa kirjoitusvirhettä. Läsnäolovaatimus voi olla ristiriidassa virheettömän kielen tavoitteen kanssa."
+    },
+    "NestingOfClauses": {
+      "label_fi": "sisäkkäiset sivulauseet",
+      "prompt_description_fi": "sisäkkäisiä sivulauseita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää sisäkkäisiä sivulauseita (NestingOfClauses).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "dependency_pattern",
+        "pattern": "nested_clauses",
+        "count_unit": "pattern_instance",
+        "operational_status": "exact_matching_and_counting_policy_to_be_specified"
+      },
+      "dimension": "clausal"
+    },
+    "StackingOfClauses": {
+      "label_fi": "rinnastetut sivulauseet",
+      "prompt_description_fi": "keskenään rinnastettuja sivulauseita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää keskenään rinnastettuja sivulauseita (StackingOfClauses).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "dependency_pattern",
+        "pattern": "coordinated_subordinate_clauses",
+        "count_unit": "pattern_instance",
+        "operational_status": "exact_matching_and_counting_policy_to_be_specified"
+      },
+      "dimension": "clausal"
+    },
+    "PreposingAdvcl": {
+      "label_fi": "etuasemainen adverbiaalilause",
+      "prompt_description_fi": "päälauseen edellä sijaitsevia adverbiaalilauseita",
+      "presence_instruction_fi": "Tekstissä tulee käyttää päälauseen edellä sijaitsevia adverbiaalilauseita (PreposingAdvcl).",
+      "target_modes": [
+        "presence",
+        "occurrence_range",
+        "token_proportion_range"
+      ],
+      "definition": {
+        "kind": "dependency_pattern",
+        "pattern": "preposed_adverbial_clause",
+        "count_unit": "pattern_instance",
+        "operational_status": "exact_matching_and_counting_policy_to_be_specified"
+      },
+      "dimension": "clausal"
+    },
+    "MaxTreeDepth": {
+      "label_fi": "syntaksipuun enimmäissyvyys",
+      "prompt_description_fi": "syntaksipuun enimmäissyvyys",
+      "presence_instruction_fi": null,
+      "range_instruction_template_fi": "Tekstin syntaksipuiden enimmäissyvyyden tulee olla välillä {min}–{max} (riippuvuusaskelta).",
+      "target_modes": [
+        "range"
+      ],
+      "unit": "riippuvuusaskelta",
+      "definition": {
+        "kind": "dependency_tree_depth",
+        "aggregation": "max",
+        "required_configuration": [
+          "depth_counting_policy"
+        ]
+      },
+      "dimension": "general"
+    },
+    "MeanTreeDepth": {
+      "label_fi": "syntaksipuun keskimääräinen syvyys",
+      "prompt_description_fi": "syntaksipuun keskimääräinen syvyys",
+      "presence_instruction_fi": null,
+      "range_instruction_template_fi": "Tekstin syntaksipuiden keskimääräisen syvyyden tulee olla välillä {min}–{max} (riippuvuusaskelta).",
+      "target_modes": [
+        "range"
+      ],
+      "unit": "riippuvuusaskelta",
+      "definition": {
+        "kind": "dependency_tree_depth",
+        "aggregation": "mean",
+        "required_configuration": [
+          "depth_counting_policy"
+        ]
+      },
+      "dimension": "general"
+    }
+  }
+}

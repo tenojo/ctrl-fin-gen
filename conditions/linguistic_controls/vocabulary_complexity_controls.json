@@ -1,0 +1,119 @@
+{
+  "schema_version": "0.4",
+  "catalogue_id": "finnish_vocabulary_complexity_controls",
+  "catalogue_version": 1,
+  "group": "vocabulary_complexity",
+  "basis": "Proposed extension using Finnish Parsebank frequency/Zipf scores; not a feature group from the paper",
+  "implementation_status": "future_resource_integration",
+  "interpretation": "Frequency-defined rarity is a proxy, not a direct measurement of educational difficulty.",
+  "controls": {
+    "complex_token_proportion": {
+      "label_fi": "harvinaisten sanojen osuus",
+      "prompt_description_fi": "harvinaisten sanojen osuus",
+      "presence_instruction_fi": null,
+      "range_instruction_template_fi": "Määritellyn yleisyysrajan alittavien sanojen osuuden tulee olla välillä {min}–{max} (osuus 0–1).",
+      "target_modes": [
+        "range"
+      ],
+      "unit": "osuus 0–1",
+      "definition": {
+        "kind": "frequency_based_vocabulary_metric",
+        "method": "below_cutoff_token_proportion",
+        "resource": "Finnish Parsebank",
+        "implementation_status": "future_resource_integration",
+        "required_configuration": [
+          "resource_version",
+          "resource_checksum",
+          "lookup_unit",
+          "score_kind",
+          "score_definition",
+          "oov_policy",
+          "token_inclusion_policy",
+          "aggregation_policy",
+          "rarity_cutoff",
+          "cutoff_operator"
+        ]
+      }
+    },
+    "complex_token_count": {
+      "label_fi": "harvinaisten sanojen määrä",
+      "prompt_description_fi": "harvinaisten sanojen määrä",
+      "presence_instruction_fi": null,
+      "range_instruction_template_fi": "Määritellyn yleisyysrajan alittavien sanojen määrän tulee olla välillä {min}–{max} (sanaa).",
+      "target_modes": [
+        "range"
+      ],
+      "unit": "sanaa",
+      "definition": {
+        "kind": "frequency_based_vocabulary_metric",
+        "method": "below_cutoff_token_count",
+        "resource": "Finnish Parsebank",
+        "implementation_status": "future_resource_integration",
+        "required_configuration": [
+          "resource_version",
+          "resource_checksum",
+          "lookup_unit",
+          "score_kind",
+          "score_definition",
+          "oov_policy",
+          "token_inclusion_policy",
+          "aggregation_policy",
+          "rarity_cutoff",
+          "cutoff_operator"
+        ]
+      }
+    },
+    "mean_frequency": {
+      "label_fi": "sanaston keskimääräinen frekvenssi",
+      "prompt_description_fi": "sanaston keskimääräinen frekvenssi",
+      "presence_instruction_fi": null,
+      "range_instruction_template_fi": "Tekstin sanojen keskimääräisen frekvenssin tulee olla välillä {min}–{max} (valitun resurssin frekvenssiyksikköä).",
+      "target_modes": [
+        "range"
+      ],
+      "unit": "valitun resurssin frekvenssiyksikköä",
+      "definition": {
+        "kind": "frequency_based_vocabulary_metric",
+        "method": "mean_frequency",
+        "resource": "Finnish Parsebank",
+        "implementation_status": "future_resource_integration",
+        "required_configuration": [
+          "resource_version",
+          "resource_checksum",
+          "lookup_unit",
+          "score_kind",
+          "score_definition",
+          "oov_policy",
+          "token_inclusion_policy",
+          "aggregation_policy"
+        ]
+      }
+    },
+    "mean_zipf": {
+      "label_fi": "sanaston keskimääräinen Zipf-arvo",
+      "prompt_description_fi": "sanaston keskimääräinen Zipf-arvo",
+      "presence_instruction_fi": null,
+      "range_instruction_template_fi": "Tekstin sanojen keskimääräisen Zipf-arvon tulee olla välillä {min}–{max} (Zipf-pistettä).",
+      "target_modes": [
+        "range"
+      ],
+      "unit": "Zipf-pistettä",
+      "definition": {
+        "kind": "frequency_based_vocabulary_metric",
+        "method": "mean_zipf",
+        "resource": "Finnish Parsebank",
+        "implementation_status": "future_resource_integration",
+        "required_configuration": [
+          "resource_version",
+          "resource_checksum",
+          "lookup_unit",
+          "score_kind",
+          "score_definition",
+          "oov_policy",
+          "token_inclusion_policy",
+          "aggregation_policy"
+        ]
+      }
+    }
+  }
+}

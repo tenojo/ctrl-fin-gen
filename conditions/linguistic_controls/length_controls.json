@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.4",
+  "catalogue_id": "finnish_length_controls",
+  "catalogue_version": 1,
+  "implementation_status": "proposed_check_definitions_and_prompt_text_only",
+  "controls": {
+    "number_of_words": {
+      "label_fi": "sanamäärä",
+      "exact_instruction_template_fi": "Tekstin sanamäärän tulee olla {value}.",
+      "range_instruction_template_fi": "Tekstissä tulee olla {min}–{max} sanaa.",
+      "definition": {
+        "kind": "word_count",
+        "required_policies": [
+          "tokenization_policy"
+        ]
+      }
+    },
+    "number_of_sentences": {
+      "label_fi": "virkemäärä",
+      "exact_instruction_template_fi": "Tekstin virkemäärän tulee olla {value}.",
+      "range_instruction_template_fi": "Tekstissä tulee olla {min}–{max} virkettä.",
+      "definition": {
+        "kind": "sentence_count",
+        "required_policies": [
+          "sentence_segmentation_policy"
+        ]
+      }
+    },
+    "max_word_length": {
+      "label_fi": "sanan enimmäispituus",
+      "supported_units": [
+        "letters",
+        "characters"
+      ],
+      "instruction_templates_fi": {
+        "letters": "Sanan enimmäispituus kirjaimina on {value}.",
+        "characters": "Sanan enimmäispituus merkkeinä on {value}."
+      },
+      "definition": {
+        "kind": "maximum_word_length",
+        "required_policies": [
+          "tokenization_policy",
+          "character_counting_policy"
+        ]
+      }
+    }
+  }
+}

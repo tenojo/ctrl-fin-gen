@@ -1,0 +1,239 @@
+{
+  "schema_version": "0.4",
+  "template_id": "template_pilot",
+  "template_version": 4,
+  "language": "fi",
+  "prompts": {
+    "system_file": "system.txt",
+    "user_prefix_file": "user_prefix.txt",
+    "user_reminder_file": "user_reminder.txt",
+    "layout_file": "prompt_layout.txt",
+    "renderer": "fi_sectioned_v1",
+    "section_groups": {
+      "length_constraints": [
+        "length_constraints"
+      ],
+      "vocabulary_constraints": [
+        "vocabulary_constraints",
+        "vocabulary_complexity_constraints"
+      ],
+      "morphosyntactic_constraints": [
+        "linguistic_constraints",
+        "syntax_tree_constraints",
+        "part_of_speech_constraints"
+      ]
+    }
+  },
+  "categories": {
+    "vocabulary_constraints": {
+      "item_type": "lemma",
+      "count_range": {
+        "min": 0,
+        "max": 10
+      },
+      "default_items": [],
+      "min_occurrences_per_item": 1,
+      "catalogue_file": "../../linguistic_controls/vocabulary_controls.json",
+      "control": "required_lemmas"
+    },
+    "linguistic_constraints": {
+      "item_type": "morpho_lexical_target",
+      "count_range": {
+        "min": 0,
+        "max": 10
+      },
+      "default_items": [],
+      "catalogue_file": "../../linguistic_controls/linguistic_controls.json",
+      "allowed_controls": [
+        "Case=Nom",
+        "Case=Gen",
+        "Case=Par",
+        "Case=Ill",
+        "Case=Ine",
+        "Case=Ela",
+        "Case=Ade",
+        "Case=All",
+        "Case=Ess",
+        "Case=Abl",
+        "Case=Tra",
+        "Case=Acc",
+        "Case=Ins",
+        "Case=Abe",
+        "Case=Com",
+        "VerbForm=Fin",
+        "VerbForm=Inf",
+        "VerbForm=Part",
+        "Tense=Pres",
+        "Tense=Past",
+        "Voice=Act",
+        "Voice=Pass",
+        "Mood=Ind",
+        "Mood=Cnd",
+        "Mood=Imp",
+        "Person=0",
+        "Person=1",
+        "Person=2",
+        "Person=3",
+        "Number=Sing",
+        "Number=Plur",
+        "Connegative=Yes",
+        "Degree=Pos",
+        "Degree=Cmp",
+        "Degree=Sup",
+        "Style=Arch",
+        "Style=Coll",
+        "Reflex=Yes",
+        "PronType=Dem",
+        "PronType=Ind",
+        "PronType=Int",
+        "PronType=Prs",
+        "PronType=Rcp",
+        "PronType=Rel",
+        "Polarity=Neg",
+        "Person[psor]=1",
+        "Person[psor]=2",
+        "Person[psor]=3",
+        "PartForm=Agt",
+        "PartForm=Neg",
+        "PartForm=Past",
+        "PartForm=Pres",
+        "NumType=Card",
+        "NumType=Ord",
+        "Number[psor]=Plur",
+        "Number[psor]=Sing",
+        "InfForm=1",
+        "InfForm=2",
+        "InfForm=3",
+        "Foreign=Yes",
+        "Derivation=Inen",
+        "Derivation=Ja",
+        "Derivation=Lainen",
+        "Derivation=Llinen",
+        "Derivation=Tar",
+        "Derivation=Ton",
+        "Derivation=Ttain",
+        "Derivation=U",
+        "Derivation=Vs",
+        "AdpType=Post",
+        "AdpType=Prep",
+        "Abbr=Yes"
+      ],
+      "default_occurrences": {
+        "min": 1,
+        "max": null
+      }
+    },
+    "length_constraints": {
+      "catalogue_file": "../../linguistic_controls/length_controls.json",
+      "controls": {
+        "number_of_words": {
+          "allow_disable": true,
+          "default": null,
+          "value_bounds": {
+            "minimum": 1,
+            "maximum": 200
+          }
+        },
+        "number_of_sentences": {
+          "allow_disable": true,
+          "default": null,
+          "value_bounds": {
+            "minimum": 1,
+            "maximum": 10
+          }
+        },
+        "max_word_length": {
+          "allow_disable": true,
+          "default": null,
+          "unit": "characters",
+          "value_bounds": {
+            "minimum": 1,
+            "maximum": 25
+          }
+        }
+      }
+    },
+    "syntax_tree_constraints": {
+      "item_type": "catalogue_target",
+      "count_range": {
+        "min": 0,
+        "max": null
+      },
+      "default_items": [],
+      "catalogue_file": "../../linguistic_controls/syntax_tree_controls.json",
+      "allowed_controls": [
+        "root",
+        "nsubj",
+        "advmod",
+        "obl",
+        "obj",
+        "conj",
+        "aux",
+        "cc",
+        "amod",
+        "nmod:poss",
+        "mark",
+        "cop",
+        "nsubj:cop",
+        "advcl",
+        "xcomp",
+        "case",
+        "det",
+        "ccomp",
+        "nmod",
+        "parataxis",
+        "acl:relcl",
+        "acl",
+        "xcomp:ds",
+        "discourse",
+        "nummod",
+        "fixed",
+        "cop:own",
+        "appos",
+        "flat:name",
+        "compound:nn",
+        "aux:pass",
+        "vocative",
+        "nmod:gobj",
+        "nmod:gsubj",
+        "compound:prt",
+        "csubj:cop",
+        "flat:foreign",
+        "orphan",
+        "cc:preconj",
+        "csubj",
+        "compound",
+        "flat",
+        "goeswith",
+        "NestingOfClauses",
+        "StackingOfClauses",
+        "PreposingAdvcl",
+        "MaxTreeDepth",
+        "MeanTreeDepth"
+      ]
+    }
+  },
+  "selection_limits": {
+    "morphosyntactic_targets": {
+      "categories": [
+        "linguistic_constraints",
+        "syntax_tree_constraints"
+      ],
+      "min": 0,
+      "max": 5
+    }
+  },
+  "artifact_type": "system_template",
+  "request_fields": {
+    "audience": {
+      "tunable": true,
+      "default": {
+        "description": "Teksti on tarkoitettu 3. luokan oppilaille."
+      }
+    },
+    "prompt": {
+      "tunable": true,
+      "default": ""
+    }
+  }
+}
