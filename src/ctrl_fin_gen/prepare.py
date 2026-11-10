@@ -1,15 +1,33 @@
-"""Resolve permitted experiment values without calling a generation model."""
+"""Turn a system template and user choices into an experiment's realized inputs.
+
+The three data tiers meet here: shared catalogues define controls and wording;
+a system template exposes a subset with defaults/bounds; a realized template
+stores the actual choices for an experiment. A request cannot add controls that
+its system template does not expose.
+
+prepare_experiment builds an ExperimentInputs object in memory. create_experiment
+optionally saves it under experiments/NAME/template/. load_experiment reloads it
+and checks its source hashes before a new generation starts. Precedence is system
+defaults, copied experiment values, then supplied values (already merged with
+explicit CLI overrides by cli.creation_values).
+
+Vocabulary import/selection and numeric checks live in constraints/. Finnish
+prompt rendering lives in prompts.py. No generation backend is called here;
+this preparation path is shared by future OpenAI, Google, and vLLM clients.
+"""
 
 from copy import deepcopy
 from pathlib import Path
 
 from .constraints.length import bounds, number, validate_length
-from .constraints.vocabulary import clean_lemmas, resolve_vocabulary
-from .models import ExperimentInputs
-from .prompts import build_messages
+from .constraints.vocabulary import clean_lemmas, resolve_vocabulary, vocabulary_for_request
+from .models import ExperimentInputs, GenerationRequest
+from .prompts import build_messages, build_prompt
 from .storage import content_hash, named_folder, read_json, timestamp, write_json
 
 
+# These categories share the same inline control-target representation. Vocabulary
+# and length have their own formats and are handled separately below.
 CATALOGUE_GROUPS = (
     'linguistic_constraints',
     'syntax_tree_constraints',
@@ -19,6 +37,12 @@ CATALOGUE_GROUPS = (
 
 
 def system_template_path(root, template):
+    """Return the absolute template.json path for a name, folder, or JSON path.
+
+    Existing relative paths resolve from root; a bare name falls back to
+    root/conditions/system_templates/NAME. This resolves a path but does not
+    read or validate the template's JSON contents.
+    """
     path = Path(template)
     if not path.is_absolute():
         candidate = Path(root) / path
@@ -30,7 +54,13 @@ def system_template_path(root, template):
 
 
 def load_values(path):
-    """Paths in a condition file resolve relative to that file."""
+    """Read a condition selection JSON object and make its input paths absolute.
+
+    Vocabulary source paths and a system_template reference resolve relative to
+    the condition file, rather than the shell's working directory. Return the
+    choices without filling defaults or selecting vocabulary; those steps belong
+    to prepare_experiment. Malformed selection structure raises ValueError.
+    """
     path = Path(path).resolve()
     values = read_json(path)
     if not isinstance(values, dict):
@@ -53,6 +83,13 @@ def load_values(path):
 
 
 def load_catalogues(folder, system):
+    """Return (catalogues, references) for the selected system template.
+
+    folder contains its template.json. Catalogue-file paths resolve from there.
+    catalogues maps each category to its shared control definitions; references
+    records each file's identity, path, and hash for later consistency checks.
+    Reject a template that exposes control codes absent from those definitions.
+    """
     catalogues = {}
     references = {}
     for category, specification in system['categories'].items():
@@ -72,6 +109,19 @@ def load_catalogues(folder, system):
 
 
 def resolve_controls(items, specification, catalogue, label):
+    """Return {'items': [...]} with validated targets and presence defaults.
+
+    Used for morphology, syntax, POS, and the reserved complexity category.
+    items may contain a code string or a dictionary such as
+    {'control': 'Case=Gen', 'occurrences': {'min': 1, 'max': None}}.
+    A numeric feature uses target; a token proportion uses proportion. Each
+    item must select one supported mode. Category size, allowed codes, duplicate
+    codes, and numeric bounds are checked against the template/catalogue.
+
+    Missing occurrence bounds mean presence (normally at least once). This
+    validates requested conditions, not their satisfaction in generated text.
+    Vocabulary-complexity targets remain disabled pending resource integration.
+    """
     if not isinstance(items, list):
         raise ValueError(f'{label} items must be a list.')
     limits = specification['count_range']
@@ -112,7 +162,14 @@ def resolve_controls(items, specification, catalogue, label):
 
 
 def validate_realized(system, realized, catalogues):
-    """Validate saved values as well as newly prepared ones."""
+    """Check a realized template against its source; return None or raise ValueError.
+
+    Unlike prepare_experiment, this does not resolve choices or fill defaults.
+    It checks already-realized categories, vocabulary/pool size, feature targets,
+    combined selection limits, audience/theme editability, and word-length units.
+    load_experiment uses the same checks as creation so saved values cannot widen
+    a system template's exposed controls or bounds.
+    """
     constraints = realized['constraints']
     if set(constraints) != set(system['categories']):
         raise ValueError('Realized categories must match the selected system template.')
@@ -137,6 +194,7 @@ def validate_realized(system, realized, catalogues):
                 raise ValueError('Lemma occurrence requirements cannot redefine the system template.')
         else:
             resolve_controls(value['items'], specification, catalogues[category], category)
+    # Several individually valid groups can still exceed a shared constraint cap.
     for limit in system.get('selection_limits', {}).values():
         count = sum(len(constraints[category]['items']) for category in limit['categories'])
         if count < limit['min'] or (limit['max'] is not None and count > limit['max']):
@@ -161,6 +219,17 @@ def validate_realized(system, realized, catalogues):
 
 
 def prepare_experiment(root, template, values=None, copy_from=None):
+    """Return validated ExperimentInputs without writing an experiment or calling an API.
+
+    root contains conditions/ and experiments/; template accepts a name or path.
+    values is a condition selection dictionary, not a saved realized template.
+    copy_from optionally names an experiment with the same source definition;
+    explicit values override its choices. Inputs are copied before modification.
+
+    The result contains defaults, resolved targets, frozen vocabulary or sampling
+    pool, prompt text/layout, and source references. Prompt rendering is checked
+    before returning. Invalid choices raise ValueError; file errors propagate.
+    """
     path = system_template_path(root, template)
     system = read_json(path)
     catalogues, references = load_catalogues(path.parent, system)
@@ -177,6 +246,8 @@ def prepare_experiment(root, template, values=None, copy_from=None):
     copied_vocabulary = None
     copied_provenance = None
     if copy_from:
+        # Copy realized values, not outputs. Reuse the frozen vocabulary/pool so
+        # copying still works after an original input vocabulary file is removed.
         copied = load_experiment(root, copy_from)
         old_source = copied.template['source_system_template']
         if any(old_source.get(key) != source[key] for key in ('id', 'version', 'sha256')):
@@ -222,6 +293,8 @@ def prepare_experiment(root, template, values=None, copy_from=None):
     if set(selection['constraints']) - set(system['categories']):
         raise ValueError('The request adds a category not exposed by this system template.')
 
+    # Layout belongs to the system template. Only its exposed prompt text can
+    # be overridden for this experiment; the layout's seven-section order stays.
     prompts = {}
     for key in ('system', 'user_prefix', 'user_reminder', 'layout'):
         filename = system['prompts'].get(key + '_file')
@@ -234,6 +307,8 @@ def prepare_experiment(root, template, values=None, copy_from=None):
             raise ValueError(f'The system template does not expose prompt text {key}.')
         prompts[key] = text
 
+    # Keep selection recipes separate from the resolved data used for generation.
+    # References identify source files; the system-template definition is not copied.
     realized = {
         'artifact_type': 'realized_template', 'schema_version': system.get('schema_version'),
         'source_system_template': source, 'catalogues': references, 'constraints': {},
@@ -241,6 +316,8 @@ def prepare_experiment(root, template, values=None, copy_from=None):
         'prompts': deepcopy(system['prompts']), 'selection_provenance': {},
         'metadata': deepcopy(selection.get('metadata', {})),
     }
+    # Each category resolves to its own saved shape: lemma items/pool, length
+    # bounds, or a list of feature targets. Omitted choices use template defaults.
     for category, specification in system['categories'].items():
         supplied = selection['constraints'].get(category)
         if category == 'vocabulary_constraints':
@@ -275,6 +352,16 @@ def prepare_experiment(root, template, values=None, copy_from=None):
 
 
 def create_experiment(root, name, template, values=None, copy_from=None, preview=False):
+    """Prepare and return an experiment, saving it unless preview=True.
+
+    A normal call reserves a new experiments/NAME folder and writes selection.json,
+    realized template.json, selected control_definitions.json, and prompt text/
+    layout under template/. Existing experiment folders are never overwritten.
+    The source system-template JSON stays in conditions/system_templates/.
+
+    Preview returns the same prepared inputs without creating any folders/files.
+    All value and layout validation happens before a destination is created.
+    """
     destination = named_folder(Path(root) / 'experiments', name)
     if destination.exists() and not preview:
         raise FileExistsError(f'Experiment already exists: {destination}')
@@ -291,6 +378,8 @@ def create_experiment(root, name, template, values=None, copy_from=None, preview
         prepared.template['prompts'][key + '_file'] = filename
     write_json(folder / 'selection.json', prepared.selection)
     write_json(folder / 'template.json', prepared.template)
+    # These selected-definition snapshots support later auditing/evaluation.
+    # The returned ExperimentInputs.controls still contains the full catalogues.
     used = {}
     for category, value in prepared.template['constraints'].items():
         if category == 'vocabulary_constraints':
@@ -307,6 +396,16 @@ def create_experiment(root, name, template, values=None, copy_from=None, preview
 
 
 def load_experiment(root, name):
+    """Return saved ExperimentInputs after checking source hashes and allowed values.
+
+    Read realized values and prompt snapshots from experiments/NAME/template/.
+    Reopen the referenced system template and shared catalogues; reject changed
+    definitions instead of silently changing what the experiment means. The local
+    selected-control snapshots are audit artifacts, not the source loaded here.
+
+    New submissions use this path. Resuming an existing submission instead uses
+    its frozen manifest/requests, so it does not need to rerender an experiment.
+    """
     folder = named_folder(Path(root) / 'experiments', name) / 'template'
     realized = read_json(folder / 'template.json')
     source = realized['source_system_template']
@@ -325,3 +424,32 @@ def load_experiment(root, name):
         prompts[key] = path.read_text(encoding='utf-8')
     selection = read_json(folder / 'selection.json')
     return ExperimentInputs(selection, realized, controls, prompts)
+
+
+def prepare_requests(experiment, samples):
+    """Freeze neutral requests, including vocabulary and grouping, before provider selection.
+
+    Condition-scope choices share a configuration with consecutive repetitions.
+    Request-scope draws get distinct configuration IDs even if two draws coincide.
+    Reusing this returned plan preserves identifiers and every realized choice.
+    """
+    vocabulary = experiment.template['constraints'].get('vocabulary_constraints', {'items': []})
+    requests = []
+    for index in range(samples):
+        lemmas = vocabulary_for_request(vocabulary, index)
+        conditions = deepcopy(experiment.template)
+        conditions.pop('catalogues', None)
+        conditions.pop('prompts', None)
+        if 'vocabulary_constraints' in conditions['constraints']:
+            realized = conditions['constraints']['vocabulary_constraints']
+            realized['items'] = lemmas
+            realized.pop('sampling', None)
+        per_request = bool(vocabulary.get('sampling'))
+        requests.append(GenerationRequest(
+            request_id=f'sample_{index + 1:06d}',
+            configuration_id=f'config_{index + 1:06d}' if per_request else 'config_000001',
+            repetition_index=1 if per_request else index + 1,
+            conditions=conditions,
+            **build_prompt(experiment, lemmas),
+        ))
+    return requests

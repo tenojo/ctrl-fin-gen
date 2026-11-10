@@ -1,0 +1,35 @@
+# Isolated Python 3.11 worker; install CPU PyTorch first (scripts/setup_trankit.py).
+# Source revision includes the Hugging Face download fix absent from PyPI.
+trankit @ git+https://github.com/nlp-uoregon/trankit.git@54e863327391262cf72f6adc1b0ff104e972a1dc
+torch==2.0.1
+adapters==0.1.1
+transformers==4.35.2
+numpy==1.26.4
+huggingface-hub==0.25.2
+tokenizers==0.15.2
+sentencepiece==0.2.0
+protobuf==4.25.8
+certifi==2026.10.23
+charset-normalizer==3.5.2
+click==8.5.1
+cloudpickle==3.1.2
+filelock==4.2.4
+fsspec==2026.9.0
+idna==3.20
+Jinja2==3.1.6
+joblib==1.6.0
+langid==1.1.6
+MarkupSafe==3.0.3
+mpmath==1.3.0
+networkx==3.6.1
+packaging==26.3
+PyYAML==6.0.3
+regex==2026.11.9
+requests==2.34.2
+sacremoses==0.2.0
+safetensors==0.8.0
+six==1.17.0
+sympy==1.14.0
+tqdm==4.70.1
+typing_extensions==4.16.0
+urllib3==2.8.0

@@ -25,7 +25,8 @@ class CLITests(WorkspaceTest):
         self.assertFalse((self.root / 'experiments/science').exists())
         self.assertEqual(self.run_cli(create_args)[0], 0)
         provider = FakeProvider()
-        with patch('ctrl_fin_gen.generation.OpenAIProvider', return_value=provider):
+        provider.settings.mode = 'stream'
+        with patch('ctrl_fin_gen.generation.create_provider', return_value=provider):
             code, output, errors = self.run_cli([
                 'generate', 'science', '--name', 'first', '--backend', 'openai',
                 '--model', 'test-model', '--max-length', '500', '--samples', '2', '--stream',
@@ -55,7 +56,7 @@ class CLITests(WorkspaceTest):
         self.create()
         args = ['generate', 'test', '--backend', 'openai', '--model', 'test-model',
                 '--max-length', '500', '--samples', '1']
-        with patch('builtins.input', return_value='named'), patch('ctrl_fin_gen.generation.OpenAIProvider', return_value=FakeProvider()):
+        with patch('builtins.input', return_value='named'), patch('ctrl_fin_gen.generation.create_provider', return_value=FakeProvider()):
             self.assertEqual(self.run_cli(args)[0], 0)
             code, _, errors = self.run_cli(args)
         self.assertEqual(code, 1)
@@ -63,18 +64,18 @@ class CLITests(WorkspaceTest):
 
     def test_errors_are_clear_for_unsupported_backends_and_missing_credentials(self):
         self.create()
-        args = ['generate', 'test', '--name', 'first', '--backend', 'google',
+        args = ['generate', 'test', '--name', 'first', '--backend', 'vllm_python',
                 '--model', 'test-model', '--max-length', '500', '--samples', '1']
         code, _, errors = self.run_cli(args)
         self.assertEqual(code, 1)
-        self.assertIn('Only the OpenAI', errors)
+        self.assertIn('not implemented', errors)
         args[5] = 'openai'
         with patch.dict('os.environ', {}, clear=True):
             code, _, errors = self.run_cli(args)
         self.assertEqual(code, 1)
         self.assertIn('api_key', errors)
         self.assertNotIn('Traceback', errors)
-        self.assertFalse((self.root / 'experiments/test/generations/first').exists())
+        self.assertTrue((self.root / 'experiments/test/generations/first/requests.jsonl').exists())
 
     def test_resume_cannot_override_settings_and_retry_is_resume_only(self):
         cases = [
@@ -87,6 +88,20 @@ class CLITests(WorkspaceTest):
             with self.subTest(arguments=arguments), redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
                 parse_args(arguments)
             self.assertEqual(error.exception.code, 2)
+
+    def test_foreign_provider_options_are_rejected_before_creating_a_submission(self):
+        self.create()
+        cases = [('google_cloud', ['--reasoning-effort', 'low']),
+                 ('openai', ['--google-temperature', '0.5'])]
+        for backend, flags in cases:
+            with self.subTest(backend=backend):
+                code, _, errors = self.run_cli([
+                    'generate', 'test', '--name', 'wrong-flags', '--backend', backend,
+                    '--model', 'model', '--samples', '1', '--max-length', '100', *flags,
+                ])
+                self.assertEqual(code, 1)
+                self.assertIn('options cannot be used', errors)
+                self.assertFalse((self.root / 'experiments/test/generations/wrong-flags').exists())
 
     def test_static_planning_submissions_get_a_clear_error(self):
         folder = self.root / 'experiments/old/generations/example'
@@ -105,12 +120,33 @@ class CLITests(WorkspaceTest):
         ])
         self.assertEqual(code, 0, errors)
         pool.unlink()
-        with patch('ctrl_fin_gen.generation.OpenAIProvider', return_value=FakeProvider()):
+        with patch('ctrl_fin_gen.generation.create_provider', return_value=FakeProvider()):
             code, _, errors = self.run_cli([
                 'generate', 'science', '--name', 'sampled', '--backend', 'openai',
                 '--model', 'test-model', '--max-length', '500', '--samples', '3',
             ])
         self.assertEqual(code, 0, errors)
         requests = read_jsonl(self.root / 'experiments/science/generations/sampled/requests.jsonl')
-        self.assertTrue(all(len(request['vocabulary']) == 2 for request in requests))
-        self.assertTrue(all(', '.join(request['vocabulary']) in request['body']['input'][-1]['content'] for request in requests))
+        self.assertTrue(all(len(request['conditions']['constraints']['vocabulary_constraints']['items']) == 2 for request in requests))
+        self.assertTrue(all(', '.join(request['conditions']['constraints']['vocabulary_constraints']['items']) in request['user_prompt'] for request in requests))
+
+    def test_another_registered_provider_owns_its_flags_without_cli_changes(self):
+        from ctrl_fin_gen.providers import PROVIDERS
+        class AlienProvider(FakeProvider):
+            @classmethod
+            def add_cli_arguments(cls, parser):
+                parser.add_argument('--alien-knob', type=int)
+            @classmethod
+            def options_from_args(cls, args):
+                return {} if args.alien_knob is None else {'knob': args.alien_knob}
+            def validate_settings(self):
+                if self.settings.provider_options != {'knob': 7}:
+                    raise ValueError('Missing native knob')
+        self.create()
+        with patch.dict(PROVIDERS, {'alien': AlienProvider}):
+            code, output, errors = self.run_cli([
+                'generate', 'test', '--name', 'alien', '--backend', 'alien',
+                '--model', 'm', '--samples', '1', '--max-length', '100', '--alien-knob', '7',
+            ])
+        self.assertEqual(code, 0, errors)
+        self.assertEqual(json.loads(output)['status'], 'completed')

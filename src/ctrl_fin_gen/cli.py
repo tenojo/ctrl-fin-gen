@@ -1,11 +1,18 @@
-"""Command-line arguments and a thin layer over the package functions."""
+"""Thin CLI: declare common options, collect provider-owned flags, and dispatch.
+
+Preparation and preview need no service SDK. Provider classes declare/extract
+native options; the CLI saves them without interpreting them. Results/events
+are shared records, and errors from providers use the common ProviderError.
+"""
 
 import argparse
 import json
 import sys
 from pathlib import Path
 
-from openai import OpenAIError
+from .models import GenerationSettings, GenerationRequest
+from .storage import read_jsonl
+from .providers import provider_classes, get_provider_class
 
 from .generation import collect_results, get_status, resume_generation, start_generation
 from .prepare import create_experiment, load_values
@@ -13,7 +20,12 @@ from .prompts import build_messages
 
 
 def gen_parser() -> argparse.ArgumentParser:
-    """Define commands without reading files or calling a generation provider."""
+    """Return the four-command ArgumentParser without performing any I/O.
+
+    Parser-level checks cover types, required arguments, and mutually exclusive
+    flags. Template bounds and folder existence are checked by the application
+    functions after parsing; declaring a backend choice does not implement it.
+    """
     parser = argparse.ArgumentParser(
         prog="ctrl-fin-gen",
         description="Create controlled-generation experiments and manage submissions.",
@@ -125,6 +137,7 @@ def gen_parser() -> argparse.ArgumentParser:
         "--resume", metavar="GENERATION",
         help="Continue an interrupted generation using its saved settings.",
     )
+    generate.add_argument("--requests", type=Path, help="Reuse a frozen shared requests.jsonl plan.")
     generate.add_argument(
         "--retry-unknown", action="store_true",
         help="With --resume, explicitly retry a request whose remote outcome is unknown.",
@@ -135,7 +148,8 @@ def gen_parser() -> argparse.ArgumentParser:
         "New submissions require backend, model, max-length, and samples. "
         "Resume uses saved settings instead.",
     )
-    settings.add_argument("--backend", choices=("openai", "google", "vllm"))
+    # These are planned backend names. run_command currently enables only OpenAI.
+    settings.add_argument("--backend", help="Registered provider name.")
     settings.add_argument("--model", help="Model name or identifier.")
     settings.add_argument(
         "--max-length", "--max-output-tokens", dest="max_output_tokens",
@@ -144,17 +158,8 @@ def gen_parser() -> argparse.ArgumentParser:
     settings.add_argument(
         "--samples", type=int, help="Number of separately identified text-generation requests."
     )
-    settings.add_argument(
-        "--reasoning-effort", help="Reasoning effort supported by the chosen model."
-    )
-    settings.add_argument(
-        "--base-url", help="Custom API base URL, for example a running vLLM server."
-    )
-    settings.add_argument(
-        "--google-api", choices=("developer", "cloud"), help="Google API route."
-    )
-    settings.add_argument("--google-project", help="Google Cloud project identifier.")
-    settings.add_argument("--google-location", help="Google Cloud location.")
+    for provider_class in provider_classes():
+        provider_class.add_cli_arguments(generate)
     processing = settings.add_mutually_exclusive_group()
     processing.add_argument("--stream", action="store_true", help="Stream immediate responses.")
     processing.add_argument("--batch", action="store_true", help="Submit a provider batch.")
@@ -172,7 +177,13 @@ def gen_parser() -> argparse.ArgumentParser:
 
 
 def parse_args(argv=None) -> argparse.Namespace:
-    """Parse arguments and check new-submission versus resume options."""
+    """Return parsed arguments, or let argparse exit on invalid combinations.
+
+    argv=None reads the process arguments; passing a list is useful for tests.
+    A new generation requires explicit settings. Resume forbids overrides so it
+    cannot silently change a submission's saved model, budget, or sample count.
+    This function does not read an existing submission or contact a provider.
+    """
     parser = gen_parser()
     args = parser.parse_args(argv)
     if args.command != "generate":
@@ -180,9 +191,8 @@ def parse_args(argv=None) -> argparse.Namespace:
 
     if args.resume is not None:
         overrides = (
-            args.backend, args.model, args.max_output_tokens, args.samples,
-            args.reasoning_effort, args.base_url, args.google_api,
-            args.google_project, args.google_location,
+            args.backend, args.model, args.max_output_tokens, args.samples, args.requests,
+            *[value for cls in provider_classes() for value in cls.options_from_args(args).values()],
         )
         if any(value is not None for value in overrides) or args.stream or args.batch:
             parser.error("--resume reuses saved settings; do not supply generation settings.")
@@ -199,7 +209,14 @@ def parse_args(argv=None) -> argparse.Namespace:
 
 
 def creation_values(args):
-    """Apply explicit CLI overrides to optional JSON condition values."""
+    """Return condition choices from a create Namespace, with CLI flags winning.
+
+    Start from --condition JSON if present, then replace only explicitly supplied
+    fields. The result is a selection recipe, not a realized template: defaults,
+    allowed controls, and vocabulary draws are resolved in prepare_experiment.
+    None means no override; an empty --lemmas/control list deliberately clears it.
+    File reads here are limited to input conditions and optional prompt text.
+    """
     values = load_values(args.condition) if args.condition else {}
     constraints = values.setdefault('constraints', {})
     for option, key in (('sentences', 'number_of_sentences'), ('words', 'number_of_words')):
@@ -211,6 +228,8 @@ def creation_values(args):
     if args.word_length_unit is not None:
         values['word_length_unit'] = args.word_length_unit
 
+    # CLI control lists express presence. JSON condition files can also express
+    # occurrence counts, numeric ranges, and proportions using richer objects.
     for option, group in (
         ('linguistic_controls', 'linguistic_constraints'),
         ('syntax_controls', 'syntax_tree_constraints'),
@@ -220,6 +239,8 @@ def creation_values(args):
         if items is not None:
             constraints[group] = {'selection': {'mode': 'inline', 'items': items}}
 
+    # Keep the recipe here; preparation reads/freezes the vocabulary source later.
+    # A seed affects lemma selection, not the model's text-generation randomness.
     selection = None
     if args.lemmas is not None:
         selection = {'mode': 'inline', 'items': args.lemmas}
@@ -236,6 +257,7 @@ def creation_values(args):
         selection.update({key: value for key, value in sampling_options.items() if value is not None})
         constraints['vocabulary_constraints'] = {'selection': selection}
 
+    # A theme/task is separate from the general prefix and the closing reminder.
     for option, key in (
         ('system_prompt', 'system'), ('user_prefix', 'user_prefix'),
         ('user_reminder', 'user_reminder'), ('prompt', 'prompt'), ('audience', 'audience'),
@@ -255,10 +277,17 @@ def creation_values(args):
 
 
 def print_stream_text(text):
+    """Display a received text fragment immediately without mixing it into JSON stdout."""
     print(text, end='', file=sys.stderr, flush=True)
 
 
 def run_command(args, root):
+    """Execute one parsed command and return its JSON-serializable summary.
+
+    root is the workspace containing conditions/ and experiments/. This is the
+    CLI's dispatch point; domain work stays in preparation/generation functions.
+    Only a missing new generation name prompts for terminal input.
+    """
     if args.command == 'create':
         prepared = create_experiment(
             root, args.experiment, args.template, creation_values(args), args.copy_from, args.preview,
@@ -272,25 +301,33 @@ def run_command(args, root):
                 root, args.experiment, args.resume, retry_unknown=args.retry_unknown,
                 on_text=print_stream_text,
             )
-        if args.backend != 'openai':
-            raise ValueError('Only the OpenAI backend is implemented.')
-        if any(value is not None for value in (args.google_api, args.google_project, args.google_location)):
-            raise ValueError('Google options cannot be used with the OpenAI backend.')
         name = args.name if args.name is not None else input('New generation folder name: ').strip()
-        settings = {
-            'backend': args.backend, 'model': args.model,
-            'max_output_tokens': args.max_output_tokens, 'samples': args.samples,
-            'reasoning_effort': args.reasoning_effort, 'base_url': args.base_url,
-            'stream': args.stream, 'batch': args.batch,
-        }
-        return start_generation(root, args.experiment, name, settings, on_text=print_stream_text)
+        provider_class = get_provider_class(args.backend)
+        for other_class in provider_classes():
+            if other_class is not provider_class and other_class.options_from_args(args):
+                raise ValueError(f'{other_class.__name__} options cannot be used with {args.backend}.')
+        settings = GenerationSettings(
+            backend=args.backend, model=args.model, max_output_tokens=args.max_output_tokens,
+            mode='batch' if args.batch else 'stream' if args.stream else 'immediate',
+            provider_options=provider_class.options_from_args(args),
+        )
+        requests = None
+        if args.requests is not None:
+            requests = [GenerationRequest(**row) for row in read_jsonl(args.requests)]
+        return start_generation(root, args.experiment, name, settings, args.samples,
+                                on_text=print_stream_text, requests=requests)
     if args.command == 'status':
         return get_status(root, args.experiment, args.generation)
     return collect_results(root, args.experiment, args.generation)
 
 
 def main(argv=None, root=None):
-    """Run from the project/workspace folder; return a shell exit code."""
+    """Run the CLI and return 0 for success, 1 for handled errors, or 130 for Ctrl-C.
+
+    root defaults to the current working directory. Tests can pass both root and
+    argv explicitly. argparse handles invalid command syntax separately (exit 2).
+    Successful summaries go to stdout; errors and streamed fragments go to stderr.
+    """
     args = parse_args(argv)
     root = Path(root).resolve() if root is not None else Path.cwd()
     try:
@@ -298,7 +335,7 @@ def main(argv=None, root=None):
     except KeyboardInterrupt:
         print('\nInterrupted. Use generate EXPERIMENT --resume NAME to continue.', file=sys.stderr)
         return 130
-    except (OSError, ValueError, RuntimeError, EOFError, OpenAIError) as error:
+    except (OSError, ValueError, RuntimeError, EOFError) as error:
         print(f'Error: {error}', file=sys.stderr)
         return 1
     print(json.dumps(result, ensure_ascii=False, indent=2))

@@ -22,47 +22,68 @@ def response(response_id='resp_1', text='Koulussa luettiin kirjaa.', status='com
     }
 
 
-class FakeProvider:
-    def __init__(self, responses=None):
-        self.responses = list(responses or [])
-        self.calls = []
-        self.retrieved = []
-        self.remote_responses = {}
-        self.job = {'id': 'batch_1', 'status': 'validating'}
-        self.submissions = []
-        self.files = {}
+from ctrl_fin_gen.models import (GenerationSettings, GenerationResult, ProviderEvent,
+                                 BatchJob, RecoveryReport)
+from ctrl_fin_gen.providers.base import Provider, ProviderError
 
-    def generate(self, body, stream, on_event):
-        self.calls.append(copy.deepcopy(body))
-        action = self.responses.pop(0) if self.responses else response(f'resp_{len(self.calls)}')
+
+class FakeProvider(Provider):
+    """Deliberately different service semantics: no SDK fields or native IDs."""
+    streaming = True
+    batch_jobs = True
+
+    def __init__(self, settings=None, workspace='.', actions=None):
+        super().__init__(settings or GenerationSettings('fake', 'test-model', 500), workspace)
+        self.actions = list(actions or [])
+        self.calls = []
+        self.recoveries = {}
+        self.saved = {}
+        self.submissions = 0
+        self.job = BatchJob('queued', {'alien_ticket': 41})
+        self.batch_results = []
+
+    def validate_settings(self):
+        pass
+
+    def format_request(self, request):
+        return ('ALIEN_PROMPT', request.user_prompt)
+
+    def format_result(self, native, attempt):
+        r = attempt.request
+        return GenerationResult(attempt.submission_id, r.request_id, attempt.attempt_id,
+                                r.configuration_id, r.repetition_index,
+                                native.get('status', 'completed'), native.get('text', 'Koulussa luettiin kirjaa.'))
+
+    def generate(self, attempt, on_event):
+        self.calls.append(attempt)
+        on_event(ProviderEvent('started', attempt.attempt_id))
+        action = self.actions.pop(0) if self.actions else {}
         if callable(action):
-            return action(body, stream, on_event)
-        result = copy.deepcopy(action)
-        if stream:
-            on_event({'type': 'response.created', 'response': {'id': result['id'], 'status': 'in_progress'}})
-            on_event({'type': 'response.output_text.delta', 'delta': 'Koulussa '})
-        on_event({'type': 'response.' + result['status'], 'response': result})
+            return action(attempt, on_event)
+        if self.settings.mode == 'stream':
+            on_event(ProviderEvent('text_delta', attempt.attempt_id, text='Koulussa '))
+        result = self.format_result(action, attempt)
+        self.saved[attempt.attempt_id] = result
         return result
 
-    def retrieve_response(self, response_id):
-        self.retrieved.append(response_id)
-        result = self.remote_responses[response_id]
-        return copy.deepcopy(result.pop(0) if isinstance(result, list) else result)
+    def recover_request(self, attempt, checkpoint):
+        if attempt.attempt_id in self.saved:
+            return RecoveryReport('finished', result=self.saved[attempt.attempt_id])
+        return self.recoveries.get(attempt.request.request_id, RecoveryReport('unknown'))
 
-    def submit_batch(self, path, submission_id):
-        self.submissions.append(path.read_text(encoding='utf-8'))
-        self.job['metadata'] = {'submission_id': submission_id}
-        return copy.deepcopy(self.job)
+    def submit_batch(self, attempts, submission_id, on_event):
+        self.submissions += 1
+        self.batch_results = [self.format_result({}, a) for a in reversed(attempts)]
+        return self.job
 
-    def find_batch(self, submission_id):
-        return copy.deepcopy(self.job) if self.job.get('metadata', {}).get('submission_id') == submission_id else None
+    def get_batch_status(self, job):
+        return self.job
 
-    def retrieve_batch(self, batch_id):
-        assert batch_id == self.job['id']
-        return copy.deepcopy(self.job)
+    def collect_batch(self, job, attempts, on_event):
+        return iter(self.batch_results if self.job.status == 'completed' else [])
 
-    def download(self, file_id):
-        return self.files[file_id]
+    def recover_batch(self, submission_id, checkpoint):
+        return RecoveryReport('finished', job=self.job)
 
 
 class WorkspaceTest(unittest.TestCase):

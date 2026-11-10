@@ -10,8 +10,12 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = ["openai>=3.46,<4"]
 
+[project.optional-dependencies]
+google = ["google-genai>=3.0,<4"]
+
 [project.scripts]
 ctrl-fin-gen = "ctrl_fin_gen.cli:main"
+linguistic-eval = "linguistic_eval.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -12,6 +12,11 @@ docs/
 # Results and outputs
 examples/
 experiments/
+evaluations/
+
+#Codex and envs
+.codex
+.venv
 
 # Distribution / packaging
 .Python
@@ -160,6 +165,7 @@ activemq-data/
 .env
 .envrc
 .venv
+.venv-trankit/
 env/
 venv/
 ENV/

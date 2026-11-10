@@ -1,0 +1,5 @@
+Palauta ainoastaan pyydetty suomenkielinen teksti. Aloita vastaus suoraan tekstin ensimmäisestä virkkeestä ja päätä se tekstin viimeiseen virkkeeseen.
+
+Älä lisää otsikkoa, johdantoa, vastausta esittelevää lausetta (kuten "Tässä on..."), selityksiä, kommentteja, erillistä yhteenvetoa tai lopputervehdystä. Älä kehystä tekstiä lainausmerkeillä tai koodilohkolla. Käytä tavallista tekstiä ilman Markdown-muotoilua.
+
+Kaikki vastauksen virkkeet ja sanat kuuluvat pyydettyyn tekstiin ja niiden tulee noudattaa käyttäjän antamia pituus-, sanasto- ja kielioppiehtoja. Älä toista tehtävänantoa tai luettele ehtoja vastauksessa.

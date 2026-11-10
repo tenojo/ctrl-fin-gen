@@ -1,4 +1,15 @@
-"""Read explicit lemma lists and freeze reproducible vocabulary selections."""
+"""Read lemma sources and prepare reproducible vocabulary choices.
+
+read_lemmas imports lists; resolve_vocabulary applies the system template's
+allowed count and stores provenance. Condition-scope sampling draws once during
+experiment preparation. Request-scope sampling freezes the pool/count/seed in the
+realized template; generation.py calls vocabulary_for_request for each sample
+before sending anything to a provider. A sampling seed controls word selection,
+not the language model's generation randomness.
+
+These helpers normalize supplied strings but do not lemmatize them or check that
+a generated text uses them. Parser-based satisfaction checks are future work.
+"""
 
 import csv
 import random
@@ -10,6 +21,12 @@ from ..storage import content_hash, read_json
 
 
 def clean_lemmas(items, unique=False):
+    """Return trimmed NFC-normalized strings, checking duplicates without regard to case.
+
+    Reject nonlists, empty/nonstring items, and duplicates with ValueError.
+    unique=True instead keeps the first occurrence in input order, preserving
+    its spelling/case. Normalization does not infer a word's linguistic lemma.
+    """
     if not isinstance(items, list):
         raise ValueError('Lemmas must be a list.')
     cleaned = []
@@ -29,7 +46,17 @@ def clean_lemmas(items, unique=False):
 
 
 def read_lemmas(path):
-    """Read a text list, JSON list, or explicit CSV import specification."""
+    """Return (lemma_list, provenance) from text, JSON, or a CSV import specification.
+
+    Text uses UTF-8 with one item per nonempty line. A JSON list is read directly;
+    a JSON object must name the CSV path, encoding, delimiter, and lemma column.
+    Optional import settings filter rows, remove '#' compound markers, or keep
+    unique lemmas. The CSV path resolves relative to its import specification.
+    Direct CSV input is rejected rather than guessing those choices.
+
+    Provenance includes input paths/hashes and any import settings/source hash.
+    Data errors raise ValueError; file/decoding errors propagate to the caller.
+    """
     path = Path(path).resolve()
     provenance = {'path': str(path), 'sha256': content_hash(path)}
     if path.suffix.lower() != '.json':
@@ -43,6 +70,7 @@ def read_lemmas(path):
     allowed = required | {'where', 'remove_compound_markers', 'duplicate_policy'}
     if not isinstance(data, dict) or not required <= set(data) or set(data) - allowed:
         raise ValueError('A CSV import needs path, encoding, delimiter, and column; optional settings are where, remove_compound_markers, and duplicate_policy.')
+    # An explicit import recipe makes filtering/cleanup reproducible and auditable.
     source = (path.parent / data['path']).resolve()
     items = []
     with source.open(encoding=data['encoding'], newline='') as handle:
@@ -62,6 +90,17 @@ def read_lemmas(path):
 
 
 def resolve_vocabulary(value, specification):
+    """Return (realized_vocabulary, provenance) for an inline/file/sample selection.
+
+    value contains a selection recipe; specification is the system template's
+    vocabulary category, including permitted counts and minimum occurrences.
+    Explicit lists and condition-scope draws produce fixed items. Request-scope
+    draws instead store empty items plus a frozen sampling pool/count/seed.
+    The requested count is checked even when no individual draw exists yet.
+
+    A missing seed is generated and recorded; seed 0 remains a valid explicit
+    seed. This function reads source files but writes no experiment data.
+    """
     if not isinstance(value, dict) or set(value) != {'selection'}:
         raise ValueError('Vocabulary requires a selection object.')
     selection = value['selection']
@@ -97,6 +136,8 @@ def resolve_vocabulary(value, specification):
                 raise ValueError('Sampling scope must be condition or request.')
             provenance.update({'seed': seed, 'scope': scope, 'count': count})
             if scope == 'request':
+                # Save the pool itself, so generation/resume never needs to reread
+                # a vocabulary file that may later change or disappear.
                 sampling = {'pool': items, 'count': count, 'seed': seed}
                 items = []
             else:
@@ -111,6 +152,13 @@ def resolve_vocabulary(value, specification):
 
 
 def vocabulary_for_request(value, sample_index):
+    """Return the lemma list for a zero-based sample index in a prepared submission.
+
+    Fixed selections return their stored items. Request-scope sampling derives a
+    local random generator from the saved seed and index, making draws repeatable
+    regardless of execution order. generation.py saves the resulting list into
+    requests.jsonl, so actual resume reads it instead of drawing again.
+    """
     if 'sampling' not in value:
         return value['items']
     sampling = value['sampling']

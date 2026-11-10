@@ -1,240 +1,201 @@
-import json
-from openai import OpenAIError
+"""Contract-level tests: general orchestration never needs native provider shapes."""
+from dataclasses import asdict, replace
 
-from ctrl_fin_gen.generation import collect_results, generation_folder, get_status, resume_generation, start_generation
-from ctrl_fin_gen.storage import append_jsonl, read_json, read_jsonl, submission_lock, write_json
-from support import FakeProvider, WorkspaceTest, response
+from ctrl_fin_gen.generation import (start_generation, resume_generation, generation_folder,
+                                    collect_results, get_status, save_result, progress)
+from ctrl_fin_gen.models import GenerationSettings, RecoveryReport, ProviderEvent
+from ctrl_fin_gen.providers.base import ProviderError
+from ctrl_fin_gen.prepare import prepare_requests
+from ctrl_fin_gen.storage import read_json, read_jsonl, write_json, submission_lock, append_jsonl
+from support import WorkspaceTest, FakeProvider
 
 
-def interrupt_before_response(body, stream, on_event):
-    raise ConnectionError('Connection lost before response ID was received')
-
-
-def interrupt_after_response_id(body, stream, on_event):
-    on_event({'type': 'response.created', 'response': {'id': 'resp_lost', 'status': 'in_progress'}})
-    on_event({'type': 'response.output_text.delta', 'delta': 'Osittainen teksti'})
-    raise ConnectionError('Connection lost')
+def disconnect(attempt, events):
+    events(ProviderEvent('checkpoint', attempt.attempt_id, checkpoint={'alien_cursor': 91}))
+    raise ProviderError('Connection interrupted')
 
 
 class GenerationTests(WorkspaceTest):
     def setUp(self):
         super().setUp()
-        self.create()
+        self.inputs = self.create()
+        self.folder = generation_folder(self.root, 'test', 'run')
 
-    def folder(self, name='run'):
-        return generation_folder(self.root, 'test', name)
+    def start(self, actions=None, samples=2, mode='immediate'):
+        settings = GenerationSettings('fake', 'test-model', 500, mode)
+        self.provider = FakeProvider(settings, self.folder / 'provider', actions)
+        return start_generation(self.root, 'test', 'run', settings, samples, self.provider)
 
-    def test_immediate_results_and_metadata_are_saved(self):
-        provider = FakeProvider()
-        state = start_generation(self.root, 'test', 'run', self.settings(reasoning_effort='low'), provider)
+    def test_neutral_plan_and_metadata(self):
+        state = self.start()
         self.assertEqual(state['status'], 'completed')
-        self.assertEqual(state['finished_samples'], 2)
-        records = read_jsonl(self.folder() / 'results.jsonl')
-        self.assertEqual([record['text'] for record in records], ['Koulussa luettiin kirjaa.'] * 2)
-        self.assertEqual(provider.calls[0]['reasoning'], {'effort': 'low'})
-        self.assertEqual(provider.calls[0]['max_output_tokens'], 500)
-        self.assertEqual(len({record['sample_id'] for record in records}), 2)
-        self.assertEqual(len(list((self.folder() / 'raw').glob('*.json'))), 2)
-        manifest = read_json(self.folder() / 'manifest.json')
-        self.assertEqual(manifest['condition']['artifact_type'], 'realized_template')
-        self.assertEqual(manifest['settings']['model'], 'test-model')
-        with self.assertRaises(FileExistsError):
-            start_generation(self.root, 'test', 'run', self.settings(), provider)
-        resume_generation(self.root, 'test', 'run', provider)
-        self.assertEqual(len(provider.calls), 2)
+        requests = read_jsonl(self.folder / 'requests.jsonl')
+        self.assertTrue(all('body' not in r and 'model' not in r for r in requests))
+        self.assertEqual(requests[0]['configuration_id'], requests[1]['configuration_id'])
+        self.assertEqual([r['repetition_index'] for r in requests], [1, 2])
+        self.assertTrue(all('system_prompt' in r and 'user_prompt' in r for r in requests))
+        self.assertEqual(read_json(self.folder / 'manifest.json')['schema_version'], '1.0')
 
-    def test_incomplete_refused_and_failed_outputs_are_kept(self):
-        incomplete = response(text='Kesken jäänyt', status='incomplete')
-        incomplete['incomplete_details'] = {'reason': 'max_output_tokens'}
-        refused = response('resp_refusal')
-        refused['output'][0]['content'] = [{'type': 'refusal', 'refusal': 'En voi toteuttaa pyyntöä.'}]
-        failed = response('resp_failed', text='', status='failed')
-        failed['error'] = {'code': 'server_error', 'message': 'Temporary error'}
-        provider = FakeProvider([incomplete, refused, failed])
-        state = start_generation(self.root, 'test', 'run', self.settings(samples=3), provider)
-        results = read_jsonl(self.folder() / 'results.jsonl')
-        self.assertEqual([row['status'] for row in results], ['incomplete', 'refused', 'failed'])
-        self.assertEqual(results[0]['text'], 'Kesken jäänyt')
-        self.assertEqual(results[1]['refusal'], 'En voi toteuttaa pyyntöä.')
+    def test_known_terminal_outcomes_never_retried(self):
+        self.start([{'status': 'incomplete', 'text': 'Kesken'}, {'status': 'refused'}])
+        state = resume_generation(self.root, 'test', 'run', self.provider)
         self.assertEqual(state['status'], 'completed_with_errors')
-        self.assertEqual(state['finished_samples'], 3)
+        self.assertEqual(len(self.provider.calls), 2)
+        self.assertEqual(read_jsonl(self.folder / 'results.jsonl')[0]['text'], 'Kesken')
 
-    def test_stream_events_and_each_finished_result_survive_interruption(self):
-        text = []
-        provider = FakeProvider([response(), interrupt_after_response_id])
-        with self.assertRaisesRegex(RuntimeError, 'interrupted'):
-            start_generation(self.root, 'test', 'run', self.settings(stream=True), provider, text.append)
-        self.assertEqual(len(read_jsonl(self.folder() / 'results.jsonl')), 1)
-        self.assertIn('Osittainen teksti', ''.join(text))
-        events = read_jsonl(self.folder() / 'raw/events.jsonl')
-        self.assertEqual(events[-1]['event']['type'], 'response.output_text.delta')
-        provider.remote_responses['resp_lost'] = response('resp_lost', text='Palautettu teksti')
-        state = resume_generation(self.root, 'test', 'run', provider)
-        self.assertEqual(state['status'], 'completed')
-        self.assertEqual(len(provider.calls), 2)
-        self.assertEqual(provider.retrieved, ['resp_lost'])
-        self.assertEqual(read_jsonl(self.folder() / 'results.jsonl')[1]['text'], 'Palautettu teksti')
-
-    def test_waiting_response_is_retrieved_again_on_later_resume(self):
-        provider = FakeProvider([interrupt_after_response_id])
-        with self.assertRaises(RuntimeError):
-            start_generation(self.root, 'test', 'run', self.settings(samples=1, stream=True), provider)
-        provider.remote_responses['resp_lost'] = [response('resp_lost', status='in_progress'), response('resp_lost')]
-        waiting = resume_generation(self.root, 'test', 'run', provider)
-        self.assertEqual(waiting['status'], 'waiting_for_response')
-        done = resume_generation(self.root, 'test', 'run', provider)
-        self.assertEqual(done['status'], 'completed')
-        self.assertEqual(len(provider.calls), 1)
-        self.assertEqual(len(provider.retrieved), 2)
-
-    def test_unavailable_response_requires_explicit_retry(self):
-        provider = FakeProvider([interrupt_after_response_id])
-        with self.assertRaises(RuntimeError):
-            start_generation(self.root, 'test', 'run', self.settings(samples=1, stream=True), provider)
-        def unavailable(response_id):
-            raise OpenAIError('Response is no longer retrievable')
-        provider.retrieve_response = unavailable
-        with self.assertRaises(OpenAIError):
-            resume_generation(self.root, 'test', 'run', provider)
-        state = resume_generation(self.root, 'test', 'run', provider, retry_unknown=True)
-        self.assertEqual(state['status'], 'completed')
-        self.assertEqual(len(provider.calls), 2)
-
-    def test_unknown_outcome_needs_explicit_retry_and_keeps_saved_requests(self):
-        provider = FakeProvider([interrupt_before_response])
-        with self.assertRaises(RuntimeError):
-            start_generation(self.root, 'test', 'run', self.settings(samples=1), provider)
-        original = read_jsonl(self.folder() / 'requests.jsonl')
-        with self.assertRaisesRegex(ValueError, 'unknown remote outcome'):
-            resume_generation(self.root, 'test', 'run', provider)
-        self.assertEqual(len(provider.calls), 1)
-        # Resume uses frozen requests even if the experiment's source has changed.
+    def test_unknown_needs_permission_and_frozen_requests_survive_source_change(self):
+        with self.assertRaises(ProviderError):
+            self.start([{}, disconnect])
+        original = (self.folder / 'requests.jsonl').read_bytes()
         self.template.write_text('{}')
-        state = resume_generation(self.root, 'test', 'run', provider, retry_unknown=True)
-        self.assertEqual(state['status'], 'completed')
-        self.assertEqual(read_jsonl(self.folder() / 'requests.jsonl'), original)
-        self.assertEqual(provider.calls[0], provider.calls[1])
-        self.assertEqual(read_jsonl(self.folder() / 'attempts.jsonl')[2]['event'], 'abandoned')
-
-    def test_terminal_event_survives_failure_before_raw_checkpoint(self):
-        provider = FakeProvider([interrupt_before_response])
-        with self.assertRaises(RuntimeError):
-            start_generation(self.root, 'test', 'run', self.settings(samples=1), provider)
-        active = read_json(self.folder() / 'state.json')['active_request']
-        append_jsonl(self.folder() / 'raw/events.jsonl', {
-            'sample_id': active['sample_id'], 'attempt_id': active['attempt_id'],
-            'event': {'type': 'response.completed', 'response': response('resp_recovered')},
-        })
-        state = resume_generation(self.root, 'test', 'run', provider)
-        self.assertEqual(state['status'], 'completed')
-        self.assertEqual(len(provider.calls), 1)
-
-    def test_collect_immediate_recovers_saved_raw_and_is_repeat_safe(self):
-        provider = FakeProvider()
-        start_generation(self.root, 'test', 'run', self.settings(), provider)
-        (self.folder() / 'results.jsonl').unlink()
-        state = collect_results(self.root, 'test', 'run')
-        self.assertEqual(state['finished_samples'], 2)
-        collect_results(self.root, 'test', 'run')
-        self.assertEqual(len(read_jsonl(self.folder() / 'results.jsonl')), 2)
-
-    def test_truncated_jsonl_tail_is_backed_up_before_resume(self):
-        provider = FakeProvider([response(), interrupt_before_response])
-        with self.assertRaises(RuntimeError):
-            start_generation(self.root, 'test', 'run', self.settings(), provider)
-        path = self.folder() / 'results.jsonl'
-        with path.open('ab') as output:
-            output.write(b'{"sample_id": "unfin')
-        state = resume_generation(self.root, 'test', 'run', provider, retry_unknown=True)
-        self.assertEqual(state['finished_samples'], 2)
-        self.assertIn(b'unfin', path.with_name('results.jsonl.partial').read_bytes())
-
-    def test_submission_lock_prevents_concurrent_resume(self):
-        provider = FakeProvider()
-        start_generation(self.root, 'test', 'run', self.settings(), provider)
-        with submission_lock(self.folder()), self.assertRaisesRegex(ValueError, 'locked'):
-            resume_generation(self.root, 'test', 'run', provider)
-        self.assertFalse((self.folder() / '.lock').exists())
-
-    def test_other_backends_fail_before_creating_a_submission(self):
-        with self.assertRaisesRegex(ValueError, 'Only the OpenAI'):
-            start_generation(self.root, 'test', 'run', self.settings(backend='google'), FakeProvider())
-        self.assertFalse(self.folder().exists())
-
-
-class BatchTests(WorkspaceTest):
-    def setUp(self):
-        super().setUp()
-        self.create()
-        self.provider = FakeProvider()
-        start_generation(self.root, 'test', 'batch', self.settings(batch=True), self.provider)
-        self.folder = generation_folder(self.root, 'test', 'batch')
-        self.requests = read_jsonl(self.folder / 'requests.jsonl')
-
-    def complete_job(self):
-        self.provider.job.update({'status': 'completed', 'output_file_id': 'output', 'error_file_id': 'errors'})
-        self.provider.files['output'] = json.dumps({
-            'custom_id': self.requests[1]['sample_id'], 'response': {'status_code': 200, 'body': response()}, 'error': None,
-        }) + '\n'
-        self.provider.files['errors'] = json.dumps({
-            'custom_id': self.requests[0]['sample_id'], 'response': None,
-            'error': {'code': 'batch_expired', 'message': 'Request expired'},
-        }) + '\n'
-
-    def test_submitted_payload_and_status(self):
-        entries = [json.loads(line) for line in self.provider.submissions[0].splitlines()]
-        self.assertEqual([entry['custom_id'] for entry in entries], [row['sample_id'] for row in self.requests])
-        self.assertTrue(all(entry['url'] == '/v1/responses' for entry in entries))
-        self.assertTrue(all(entry['method'] == 'POST' for entry in entries))
-        self.assertNotIn('stream', entries[0]['body'])
-        status = get_status(self.root, 'test', 'batch', self.provider)
-        self.assertEqual(status['provider_status'], 'validating')
-        self.assertEqual(status['finished_samples'], 0)
-        resume_generation(self.root, 'test', 'batch', self.provider)
-        self.assertEqual(len(self.provider.submissions), 1)
-
-    def test_out_of_order_success_and_error_collection_is_repeat_safe(self):
-        self.complete_job()
-        state = collect_results(self.root, 'test', 'batch', self.provider)
-        results = read_jsonl(self.folder / 'results.jsonl')
-        self.assertEqual(state['status'], 'completed_with_errors')
-        self.assertEqual(results[0]['sample_id'], self.requests[1]['sample_id'])
-        self.assertEqual(results[1]['error']['code'], 'batch_expired')
-        collect_results(self.root, 'test', 'batch', self.provider)
+        with self.assertRaisesRegex(ValueError, 'unknown remote outcome'):
+            resume_generation(self.root, 'test', 'run', self.provider)
+        resume_generation(self.root, 'test', 'run', self.provider, retry_unknown=True)
+        self.assertEqual((self.folder / 'requests.jsonl').read_bytes(), original)
+        self.assertEqual(len(self.provider.calls), 3)
         self.assertEqual(len(read_jsonl(self.folder / 'results.jsonl')), 2)
-        self.assertEqual((self.folder / 'raw/error_file_id.jsonl').read_text(), self.provider.files['errors'])
 
-    def test_unknown_custom_id_keeps_raw_but_does_not_attach_result(self):
-        self.complete_job()
-        self.provider.files['output'] = json.dumps({'custom_id': 'not-ours', 'response': {'body': response()}})
-        with self.assertRaisesRegex(ValueError, 'unknown sample ID'):
-            collect_results(self.root, 'test', 'batch', self.provider)
-        self.assertTrue((self.folder / 'raw/output_file_id.jsonl').is_file())
-        self.assertEqual(read_jsonl(self.folder / 'results.jsonl'), [])
+    def test_waiting_then_recovered_without_regeneration(self):
+        with self.assertRaises(ProviderError):
+            self.start([disconnect], samples=1)
+        attempt = self.provider.calls[0]
+        self.provider.recoveries[attempt.request.request_id] = RecoveryReport('running')
+        state = resume_generation(self.root, 'test', 'run', self.provider)
+        self.assertEqual(state['status'], 'waiting_for_response')
+        result = self.provider.format_result({'text': 'Palautettu'}, attempt)
+        self.provider.recoveries[attempt.request.request_id] = RecoveryReport('finished', result=result)
+        state = resume_generation(self.root, 'test', 'run', self.provider)
+        self.assertEqual(state['status'], 'completed')
+        self.assertEqual(len(self.provider.calls), 1)
 
-    def test_missing_batch_results_are_reported_without_fabricating_outputs(self):
-        self.complete_job()
-        self.provider.job['error_file_id'] = None
-        state = collect_results(self.root, 'test', 'batch', self.provider)
-        self.assertEqual(state['provider_status'], 'completed')
-        self.assertEqual(state['status'], 'missing_results')
-        self.assertEqual(state['remaining_samples'], 1)
-        self.assertEqual(len(read_jsonl(self.folder / 'results.jsonl')), 1)
+    def test_safe_to_retry_does_not_require_unknown_override(self):
+        with self.assertRaises(ProviderError):
+            self.start([disconnect], samples=1)
+        self.provider.recoveries['sample_000001'] = RecoveryReport('safe_to_retry')
+        self.assertEqual(resume_generation(self.root, 'test', 'run', self.provider)['status'], 'completed')
 
-    def test_submission_is_reconciled_using_metadata_after_lost_checkpoint(self):
+    def test_every_attempt_retained_and_conflicts_rejected(self):
+        self.start(samples=1)
+        original = self.provider.saved[self.provider.calls[0].attempt_id]
+        other = replace(original, attempt_id='another-attempt', status='failed')
+        attempt = replace(self.provider.calls[0], attempt_id='another-attempt')
+        append_jsonl(self.folder / 'attempts.jsonl', {**asdict(attempt), 'event': 'started'})
+        save_result(self.folder, other)
+        save_result(self.folder, other)
+        state = progress(self.folder, read_json(self.folder / 'state.json'))
+        self.assertEqual(state['finished_attempts'], 2)
+        self.assertEqual(state['finished_samples'], 1)
+        with self.assertRaisesRegex(ValueError, 'Conflicting'):
+            save_result(self.folder, replace(other, text='Changed'))
+        with self.assertRaises(ValueError):
+            save_result(self.folder, replace(other, request_id='unknown'))
+
+    def test_collect_recovers_local_provider_evidence_repeatably(self):
+        self.start()
+        (self.folder / 'results.jsonl').unlink()
+        collect_results(self.root, 'test', 'run', self.provider)
+        collect_results(self.root, 'test', 'run', self.provider)
+        self.assertEqual(len(read_jsonl(self.folder / 'results.jsonl')), 2)
+
+    def test_tail_repair_and_lock(self):
+        with self.assertRaises(ProviderError):
+            self.start([{}, disconnect])
+        path = self.folder / 'results.jsonl'
+        with path.open('ab') as output:
+            output.write(b'{"partial":')
+        with submission_lock(self.folder), self.assertRaisesRegex(ValueError, 'locked'):
+            resume_generation(self.root, 'test', 'run', self.provider)
+        resume_generation(self.root, 'test', 'run', self.provider, retry_unknown=True)
+        self.assertTrue(path.with_suffix('.jsonl.partial').exists())
+
+    def test_reuse_identical_plan(self):
+        self.start()
+        plan = prepare_requests(self.inputs, 2)
+        provider = FakeProvider()
+        start_generation(self.root, 'test', 'copy', provider.settings, 2, provider, requests=plan)
+        copied = generation_folder(self.root, 'test', 'copy')
+        self.assertEqual(read_jsonl(self.folder / 'requests.jsonl'), read_jsonl(copied / 'requests.jsonl'))
+
+    def test_legacy_rejected_without_mutation(self):
+        self.folder.mkdir(parents=True)
+        write_json(self.folder / 'manifest.json', {'settings': {'backend': 'openai'}})
+        before = (self.folder / 'manifest.json').read_bytes()
+        for operation in (resume_generation, get_status, collect_results):
+            with self.assertRaisesRegex(ValueError, 'fresh run'):
+                operation(self.root, 'test', 'run')
+        self.assertEqual((self.folder / 'manifest.json').read_bytes(), before)
+        self.assertFalse((self.folder / '.lock').exists())
+
+    def test_batch_lifecycle_with_opaque_non_sdk_handle(self):
+        self.start(mode='batch')
+        self.assertEqual(get_status(self.root, 'test', 'run', self.provider)['provider_status'], 'queued')
+        resume_generation(self.root, 'test', 'run', self.provider)
+        self.assertEqual(self.provider.submissions, 1)
+        self.provider.job.status = 'completed'
+        state = collect_results(self.root, 'test', 'run', self.provider)
+        self.assertEqual(state['status'], 'completed')
+        collect_results(self.root, 'test', 'run', self.provider)
+        self.assertEqual(len(read_jsonl(self.folder / 'results.jsonl')), 2)
+
+    def test_batch_missing_and_unknown_submission(self):
+        self.start(mode='batch')
+        self.provider.job.status = 'completed'
+        self.provider.batch_results.pop()
+        self.assertEqual(collect_results(self.root, 'test', 'run', self.provider)['status'], 'missing_results')
         state = read_json(self.folder / 'state.json')
-        state.update({'provider_job_id': None, 'status': 'submitting'})
+        state.update(job=None, status='submitting')
         write_json(self.folder / 'state.json', state)
-        state = resume_generation(self.root, 'test', 'batch', self.provider)
-        self.assertEqual(state['provider_job_id'], 'batch_1')
-        self.assertEqual(len(self.provider.submissions), 1)
-
-    def test_unknown_batch_submission_requires_explicit_retry(self):
-        state = read_json(self.folder / 'state.json')
-        state.update({'provider_job_id': None, 'status': 'submitting'})
-        write_json(self.folder / 'state.json', state)
-        self.provider.job['metadata'] = {}
+        self.provider.recover_batch = lambda *args: RecoveryReport('unknown')
         with self.assertRaisesRegex(ValueError, 'unknown outcome'):
-            resume_generation(self.root, 'test', 'batch', self.provider)
-        resume_generation(self.root, 'test', 'batch', self.provider, retry_unknown=True)
-        self.assertEqual(len(self.provider.submissions), 2)
+            resume_generation(self.root, 'test', 'run', self.provider)
+
+    def test_unsupported_mode_before_files(self):
+        settings = GenerationSettings('fake', 'm', 100, 'batch')
+        provider = FakeProvider(settings)
+        provider.batch_jobs = False
+        with self.assertRaises(ValueError):
+            start_generation(self.root, 'test', 'run', settings, 1, provider)
+        self.assertFalse(self.folder.exists())
+
+    def test_frozen_request_mutation_is_rejected(self):
+        self.start()
+        with (self.folder / 'requests.jsonl').open('a') as output:
+            output.write('\n')
+        with self.assertRaisesRegex(ValueError, 'Frozen request plan'):
+            resume_generation(self.root, 'test', 'run', self.provider)
+
+    def test_shared_checkpoint_replay_does_not_inspect_provider_keys(self):
+        with self.assertRaises(ProviderError):
+            self.start([disconnect], samples=1)
+        state = read_json(self.folder / 'state.json')
+        for entry in state['active'].values():
+            entry['checkpoint'] = {}
+        write_json(self.folder / 'state.json', state)
+        def recover(attempt, checkpoint):
+            self.assertEqual(checkpoint, {'alien_cursor': 91})
+            return RecoveryReport('finished', result=self.provider.format_result({}, attempt))
+        self.provider.recover_request = recover
+        self.assertEqual(resume_generation(self.root, 'test', 'run', self.provider)['status'], 'completed')
+
+    def test_uncertain_batch_retry_assigns_fresh_attempts(self):
+        self.start(mode='batch')
+        state = read_json(self.folder / 'state.json')
+        before = {a['attempt_id'] for a in state['batch_attempts']}
+        state.update(job=None, status='submitting')
+        write_json(self.folder / 'state.json', state)
+        self.provider.recover_batch = lambda *args: RecoveryReport('unknown')
+        resume_generation(self.root, 'test', 'run', self.provider, retry_unknown=True)
+        after = {a['attempt_id'] for a in read_json(self.folder / 'state.json')['batch_attempts']}
+        self.assertFalse(before & after)
+        self.assertEqual(self.provider.submissions, 2)
+
+    def test_local_grouping_override_needs_no_runner_change(self):
+        settings = GenerationSettings('fake', 'test-model', 500)
+        provider = FakeProvider(settings)
+        def grouped(attempts, events):
+            for attempt in reversed(attempts):
+                yield provider.generate(attempt, events)
+        provider.generate_many = grouped
+        state = start_generation(self.root, 'test', 'run', settings, 3, provider)
+        self.assertEqual(state['finished_samples'], 3)
+        self.assertEqual(read_jsonl(self.folder / 'results.jsonl')[0]['request_id'], 'sample_000003')
